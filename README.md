@@ -4,6 +4,7 @@ Java Email Send Client with support for DKIM, S/MIME and PGP/GPG
 The class, wich does all the email encryption and delivery work, is "de.soderer.utilities.mail.Mailer".
 
 Dependencies:
+
 You need to find the following libs at their downloadsites:
 
   activation-1.1.1.jar https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
