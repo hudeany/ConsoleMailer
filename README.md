@@ -5,7 +5,7 @@ Main-Class is "de.soderer.mailer.ConsoleMailer"
 
 The class, which does all the email encryption and delivery work, is "de.soderer.utilities.mail.Mailer".
 
-The conformity with existing standards and protocols was tested with Thunderbird, but no warrant about correct function is given.
+The conformity with existing standards and protocols was tested with Thunderbird as the receiving email client, but no warrant about correct function is given.
 This is experimental code and should not be used in any productive live system.
 
 # Dependencies:
