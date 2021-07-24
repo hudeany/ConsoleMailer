@@ -22,6 +22,7 @@ import org.bouncycastle.openpgp.PGPSecretKey;
 import de.soderer.utilities.ApplicationUpdateHelper;
 import de.soderer.utilities.BasicUpdateableConsoleApplication;
 import de.soderer.utilities.FileUtilities;
+import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.Version;
@@ -62,7 +63,7 @@ public class ConsoleMailer extends BasicUpdateableConsoleApplication {
 		try (InputStream helpInputStream = ConsoleMailer.class.getResourceAsStream(HELP_RESOURCE_FILE)) {
 			return "ConsoleMailer (by Andreas Soderer, mail: consolemailer@soderer.de)\n"
 					+ "VERSION: " + VERSION + "\n\n"
-					+ new String(Utilities.readStreamToByteArray(helpInputStream), StandardCharsets.UTF_8);
+					+ new String(IoUtilities.toByteArray(helpInputStream), StandardCharsets.UTF_8);
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			return "Help info is missing";
 		}

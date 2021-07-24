@@ -1,7 +1,5 @@
 package de.soderer.utilities.mail;
 
-import java.awt.Desktop;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +12,6 @@ import java.util.regex.Pattern;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.eclipse.swt.program.Program;
-
-import de.soderer.utilities.SystemUtilities;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.http.HttpUtilities;
 
@@ -173,74 +168,6 @@ public class MailUtilities {
 			return null;
 		} else {
 			return email.toLowerCase().trim();
-		}
-	}
-
-	/**
-	 * Try to open an email in the standard email client
-	 *
-	 * @param toAdress
-	 * @param subject
-	 * @param body
-	 * @return
-	 */
-	public static boolean openMailInStandardClient(final String toAdress, final String subject, final String body) {
-		return openMailInStandardClient(toAdress, null, null, subject, body);
-	}
-
-	/**
-	 * Try to open an email in the standard email client
-	 *
-	 * @param toAdress
-	 * @param ccAdress
-	 * @param subject
-	 * @param body
-	 * @return
-	 */
-	public static boolean openMailInStandardClient(final String toAdress, final String ccAdress, final String bccAdress, final String subject, final String body) {
-		try {
-			final String mailtoString = createMailtoLink(toAdress, ccAdress, bccAdress, subject, body);
-
-			if (SystemUtilities.isWindowsSystem()) {
-				if (Desktop.isDesktopSupported()) {
-					final Desktop desktop = Desktop.getDesktop();
-					if (desktop.isSupported(Desktop.Action.MAIL)) {
-						desktop.mail(new URI(mailtoString));
-						return true;
-					}
-				}
-
-				try {
-					if (Program.launch(mailtoString)) {
-						return true;
-					}
-				} catch (@SuppressWarnings("unused") final Exception e) {
-					// Try some other method of mail creation
-				}
-			} else {
-				try {
-					Runtime.getRuntime().exec("xdg-open " + mailtoString);
-					return true;
-				} catch (@SuppressWarnings("unused") final Exception e) {
-					// Try some other method of mail creation
-				}
-
-				try {
-					// For using the parameters check the following description
-					// http://kb.mozillazine.org/Command_line_arguments_%28Thunderbird%29
-					Runtime.getRuntime().exec("thunderbird -compose");
-					if (Program.launch(mailtoString)) {
-						return true;
-					}
-				} catch (@SuppressWarnings("unused") final Exception e) {
-					// Try some other method of mail creation
-				}
-			}
-
-			throw new Exception("Cannot create mail in standard mailclient");
-		} catch (final Exception e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 
