@@ -5,7 +5,7 @@ Main-Class is "de.soderer.mailer.ConsoleMailer"
 
 The class, which does all the email encryption and delivery work, is "de.soderer.utilities.mail.Mailer".
 
-#Dependencies:
+# Dependencies:
 
 You need to find the following libs at their downloadsites:
 
