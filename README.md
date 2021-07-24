@@ -9,8 +9,7 @@ The class, which does all the email encryption and delivery work, is "de.soderer
 
 You need to find the following libs at their downloadsites:
 
-activation-1.1.1.jar
-https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
+  activation-1.1.1.jar https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
   
   bcmail-jdk15on-1.69.jar https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.69/bcprov-jdk15on-1.69.jar
   
