@@ -16,7 +16,7 @@ Optional parameters
   -ssl:                                    TLS/SSL connection security to the smtp server. Default is none
   -tls:                                    TLS/SSL connection security to the smtp server. Default is none
   -ssltls:                                 TLS/SSL connection security to the smtp server. Default is none
-  -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email (UTF-9, ISO-8859-1, ...)
+  -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email (UTF-8, ISO-8859-1, ...)
   
   -replyto:                                Reply to email address if it differs from the senders email address
   -cc "<emailList>":                       CC recipient address list
