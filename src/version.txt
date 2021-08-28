@@ -1,0 +1,3 @@
+21.8.0
+https://soderer.de/index.php?download=Versions.xml
+soderer-ca-certificate.pem

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="build_jar" name="Create all Jars for Project ConsoleMailer">
+	<property name="projectsPath" value="${user.home}/git" />
+	<echo message="projectsPath: ${projectsPath}" />
+
+	<property name="buildPath" value="build" />
+	<echo message="buildPath: ${buildPath}" />
+
+	<target name="build_jar" depends="cleanup_before, create_jar, cleanup_after" />
+	
+	<target name="cleanup_before">
+		<delete dir="${buildPath}/bin" />
+		<mkdir dir="${buildPath}/bin" />
+	</target>
+
+	<target name="cleanup_after">
+		<delete dir="${buildPath}/bin" />
+	</target>
+
+	<target name="create_jar" depends="compile">
+		<jar destfile="${buildPath}/ConsoleMailer.jar">
+			<manifest>
+				<attribute name="Main-Class" value="de.soderer.utilities.jarinjarloader.JarInJarLoader" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Rsrc-Main-Class" value="de.soderer.mailer.ConsoleMailer" />
+			</manifest>
+
+			<fileset dir="${buildPath}/bin" />
+
+			<zipfileset dir="src" includes="soderer-ca-certificate.pem" />
+
+			<zipfileset dir="lib" includes="*.jar" />
+
+			<zipfileset dir="${projectsPath}/JavaUtilities/target" includes="soderer-utilities-*.jar" />
+		</jar>
+		
+		<signjar destDir="${buildPath}" alias="soderer-de-java-2020" keystore="${user.home}/git/soderer-de-java-2020_keystore.jks" storepass="+u1F}&lt;}D(Kf_NvFrFX706574780T?LP'" keypass="5veQptNfbMrjcGaEQHh6" preservelastmodified="true" tsaurl="http://sha256timestamp.ws.symantec.com/sha256/timestamp">
+			<path>
+				<fileset dir="${buildPath}" includes="ConsoleMailer.jar" />
+			</path>
+		</signjar>
+	</target>
+
+	<target name="compile">
+		<path id="build.classpath">
+			<fileset dir="${projectsPath}/JavaUtilities/target">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+
+		<!-- Compile JarInJarLoader -->
+		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="${projectsPath}/JavaUtilities/src/main/java/de/soderer/utilities/jarinjarloader" includeantruntime="false" encoding="UTF-8" />
+
+		<!-- Compile Java classes -->
+		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="src" includeantruntime="false" encoding="UTF-8" classpath="lib/*">
+			<classpath refid="build.classpath" />
+		</javac>
+
+		<copy todir="${buildPath}/bin">
+			<fileset dir="src">
+				<include name="**/*.txt" />
+			</fileset>
+		</copy>
+	</target>
+</project>
