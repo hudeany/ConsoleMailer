@@ -34,7 +34,7 @@
 			<zipfileset dir="${projectsPath}/JavaUtilities/target" includes="soderer-utilities-*.jar" />
 		</jar>
 		
-		<signjar destDir="${buildPath}" alias="soderer-de-java-2020" keystore="${user.home}/git/soderer-de-java-2020_keystore.jks" storepass="+u1F}&lt;}D(Kf_NvFrFX706574780T?LP'" keypass="5veQptNfbMrjcGaEQHh6" preservelastmodified="true" tsaurl="http://sha256timestamp.ws.symantec.com/sha256/timestamp">
+		<signjar destDir="${buildPath}" alias="soderer-de-java-2021" keystore="${user.home}/git/soderer-de-java-2021_keystore.jks" storepass="+u1F}&lt;}D(Kf_NvFrFX706574780T?LP'" keypass="5veQptNfbMrjcGaEQHh6" preservelastmodified="true" tsaurl="http://sha256timestamp.ws.symantec.com/sha256/timestamp">
 			<path>
 				<fileset dir="${buildPath}" includes="ConsoleMailer.jar" />
 			</path>
