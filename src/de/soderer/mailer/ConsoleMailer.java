@@ -70,7 +70,7 @@ public class ConsoleMailer extends BasicUpdateableConsoleApplication {
 	}
 
 	/**
-	 * The main method.
+	 * The main method
 	 *
 	 * @param arguments the arguments
 	 */
