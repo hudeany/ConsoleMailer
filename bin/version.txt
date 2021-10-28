@@ -1,3 +1,0 @@
-21.9.0
-https://soderer.de/index.php?download=Versions.json
-soderer-ca-certificate.pem
