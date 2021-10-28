@@ -19,10 +19,10 @@ import javax.mail.internet.InternetAddress;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
-import de.soderer.utilities.UpdateableConsoleApplication;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
+import de.soderer.utilities.UpdateableConsoleApplication;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.Version;
 import de.soderer.utilities.appupdate.ApplicationUpdateUtilities;
@@ -122,13 +122,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						return 1;
 					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
 						if (arguments.size() > i + 2) {
-							ConsoleMailer r = new ConsoleMailer();
+							final ConsoleMailer r = new ConsoleMailer();
 							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null);
 						} else if (arguments.size() > i + 1) {
-							ConsoleMailer r = new ConsoleMailer();
+							final ConsoleMailer r = new ConsoleMailer();
 							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), null, null);
 						} else {
-							ConsoleMailer r = new ConsoleMailer();
+							final ConsoleMailer r = new ConsoleMailer();
 							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, null, null, null);
 						}
 						return 1;
@@ -765,11 +765,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 						email.setSignaturePrivateKey(signaturePrivateKey);
 						if (signatureCertificateFile != null) {
-							final X509Certificate signatureCertificate = CryptographicUtilities.getCertificateFromString(FileUtilities.readFileToString(signatureCertificateFile, StandardCharsets.UTF_8));
-							if (signatureCertificate == null) {
+							final List<X509Certificate> signatureCertificates = CryptographicUtilities.getCertificatesFromString(FileUtilities.readFileToString(signatureCertificateFile, StandardCharsets.UTF_8));
+							if (signatureCertificates == null || signatureCertificates.size() != 1) {
 								throw new ParameterException("Invalid S/MIME signature certificate in file '" + signatureCertificateFile.getAbsolutePath() + "'");
 							}
-							email.setSignatureCertificate(signatureCertificate);
+							email.setSignatureCertificate(signatureCertificates.get(0));
 						}
 
 						if (signatureMethodName != null) {
@@ -804,11 +804,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							email.setEncryptionMethodName(encryptionMethodName);
 						}
 					} else if (cryptoType == CryptoType.S_MIME) {
-						final X509Certificate encryptionCertificate = CryptographicUtilities.getCertificateFromString(FileUtilities.readFileToString(encryptionCertificateFile, StandardCharsets.UTF_8));
-						if (encryptionCertificate == null) {
+						final List<X509Certificate> encryptionCertificates = CryptographicUtilities.getCertificatesFromString(FileUtilities.readFileToString(encryptionCertificateFile, StandardCharsets.UTF_8));
+						if (encryptionCertificates == null || encryptionCertificates.size() != 1) {
 							throw new ParameterException("Invalid S/MIME encryption certificate in file '" + encryptionCertificateFile.getAbsolutePath() + "'");
 						}
-						email.setEncryptionCertificate(encryptionCertificate);
+						email.setEncryptionCertificate(encryptionCertificates.get(0));
 						if (encryptionMethodName != null) {
 							if (Utilities.isBlank(CryptographicUtilities.checkEncryptionMethodName(encryptionMethodName))) {
 								throw new ParameterException("-encryptionMethodName", "Invalid value for parameter encryptionMethodName with S/MIME");
