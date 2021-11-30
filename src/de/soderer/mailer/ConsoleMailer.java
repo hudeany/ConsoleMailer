@@ -598,7 +598,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 								throw new ParameterException(arguments.get(i - 1), "Dkimkeyfile does not exist: " + dkimPrivateKeyPath);
 							}
 							try {
-								dkimPrivateKey = (RSAPrivateKey) CryptographicUtilities.getUnencryptedPrivateKeyFromString(FileUtilities.readFileToString(dkimPrivateKeyFile, charset == null ? StandardCharsets.UTF_8 : charset));
+								dkimPrivateKey = (RSAPrivateKey) CryptographicUtilities.getPrivateKeyFromString(FileUtilities.readFileToString(dkimPrivateKeyFile, charset == null ? StandardCharsets.UTF_8 : charset), null);
 							} catch (@SuppressWarnings("unused") final Exception e) {
 								throw new ParameterException(arguments.get(i - 1), "Dkimkeyfile is invalid");
 							}
