@@ -122,14 +122,14 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						return 1;
 					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
 						if (arguments.size() > i + 2) {
-							final ConsoleMailer r = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null);
+							final ConsoleMailer consoleMailer = new ConsoleMailer();
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false);
 						} else if (arguments.size() > i + 1) {
-							final ConsoleMailer r = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), null, null);
+							final ConsoleMailer consoleMailer = new ConsoleMailer();
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), null, null, false);
 						} else {
-							final ConsoleMailer r = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(r, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, null, null, null);
+							final ConsoleMailer consoleMailer = new ConsoleMailer();
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, null, null, null, false);
 						}
 						return 1;
 					} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
