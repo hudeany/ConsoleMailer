@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="build_jar" name="Create all Jars for Project ConsoleMailer">
+	<property name="version" value="22.2.0" />
+	<echo message="version: ${version}" />
+	
+	<tstamp>
+		<format property="buildTime" pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
+	</tstamp>
+	<echo message="buildTime: ${buildTime}" />
+	
 	<property name="projectsPath" value="${user.home}/git" />
 	<echo message="projectsPath: ${projectsPath}" />
 
@@ -17,7 +25,7 @@
 		<delete dir="${buildPath}/bin" />
 	</target>
 
-	<target name="create_jar" depends="compile">
+	<target name="create_jar" depends="compile, create_versionfile">
 		<jar destfile="${buildPath}/ConsoleMailer.jar">
 			<manifest>
 				<attribute name="Main-Class" value="de.soderer.utilities.jarinjarloader.JarInJarLoader" />
@@ -61,5 +69,12 @@
 				<include name="**/*.txt" />
 			</fileset>
 		</copy>
+	</target>
+
+	<target name="create_versionfile">
+		<delete file="${buildPath}/bin/version.txt" />
+		<echo file="${buildPath}/bin/version.txt" append="false">${version}${line.separator}${buildTime}${line.separator}https://soderer.de/index.php?download=Versions.json${line.separator}soderer-ca-certificate.pem${line.separator}</echo>
+		<delete file="src/version.txt" />
+		<echo file="src/version.txt" append="false">${version}${line.separator}${buildTime}${line.separator}https://soderer.de/index.php?download=Versions.json${line.separator}soderer-ca-certificate.pem${line.separator}</echo>
 	</target>
 </project>

@@ -10,8 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.mail.internet.InternetAddress;
@@ -19,6 +21,7 @@ import javax.mail.internet.InternetAddress;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
@@ -52,6 +55,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	/** The version is filled in at application start from the version.txt file */
 	public static Version VERSION = null;
 
+	/** The version build time is filled in at application start from the version.txt file */
+	public static Date VERSION_BUILDTIME = null;
+
 	/** The versioninfo download url is filled in at application start from the version.txt file */
 	public static String VERSIONINFO_DOWNLOAD_URL = null;
 
@@ -62,7 +68,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	private static String getUsageMessage() {
 		try (InputStream helpInputStream = ConsoleMailer.class.getResourceAsStream(HELP_RESOURCE_FILE)) {
 			return "ConsoleMailer (by Andreas Soderer, mail: consolemailer@soderer.de)\n"
-					+ "VERSION: " + VERSION + "\n\n"
+					+ "VERSION: " + VERSION.toString() + " (" + new SimpleDateFormat(DateUtilities.YYYY_MM_DD_HHMMSS).format(VERSION_BUILDTIME) + ")" + "\n\n"
 					+ new String(IoUtilities.toByteArray(helpInputStream), StandardCharsets.UTF_8);
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			return "Help info is missing";
@@ -93,10 +99,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			final List<String> versionInfoLines = Utilities.readLines(resourceStream, StandardCharsets.UTF_8);
 			VERSION = new Version(versionInfoLines.get(0));
 			if (versionInfoLines.size() >= 2) {
-				VERSIONINFO_DOWNLOAD_URL = versionInfoLines.get(1);
+				VERSION_BUILDTIME = new SimpleDateFormat(DateUtilities.YYYY_MM_DD_HHMMSS).parse(versionInfoLines.get(1));
 			}
 			if (versionInfoLines.size() >= 3) {
-				TRUSTED_UPDATE_CA_CERTIFICATE = versionInfoLines.get(2);
+				VERSIONINFO_DOWNLOAD_URL = versionInfoLines.get(2);
+			}
+			if (versionInfoLines.size() >= 4) {
+				TRUSTED_UPDATE_CA_CERTIFICATE = versionInfoLines.get(3);
 			}
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			// Without the version.txt file we may not go on
