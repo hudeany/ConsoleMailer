@@ -22,6 +22,9 @@ Optional parameters
   -cc "<emailList>":                       CC recipient address list
   -bcc "<emailList>":                      BCC recipient address list
   
+  -bounce "<email>":                       Bounce address (Email header "Return-Path"), which will receive technical notification about the email distribution
+  -notify "<email>":                       Demand a read notification of the recipient (Email header "Disposition-Notification-To")
+  
   -text "<text>":                          Text content of this email
   -textfile "<filePath>":                  File containing the text content of this email
   -html "<html>":                          HTML content of this email

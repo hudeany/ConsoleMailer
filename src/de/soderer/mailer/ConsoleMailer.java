@@ -41,6 +41,10 @@ import de.soderer.utilities.mail.Mailer;
 import de.soderer.utilities.mail.MailerConnectionSecurity;
 
 /**
+ * TODO: Allow email addresses with display name
+ */
+
+/**
  * The Main-Class of ConsoleMailer<br />
  */
 public class ConsoleMailer extends UpdateableConsoleApplication {
@@ -162,7 +166,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 
 			for (final File configFile : configFiles) {
 				try {
-					arguments.addAll(Utilities.parseArguments(FileUtilities.readFileToString(configFile, Charset.defaultCharset())));
+					arguments.addAll(Utilities.parseArguments(FileUtilities.removePropertiesCommentLines(FileUtilities.readFileToString(configFile, Charset.defaultCharset()))));
 				} catch (@SuppressWarnings("unused") final Exception e) {
 					throw new ParameterException("Configfile is invalid: " + configFile.getAbsolutePath());
 				}
@@ -181,6 +185,8 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			final List<InternetAddress> toAddressList = new ArrayList<>();
 			final List<InternetAddress> ccAddressList = new ArrayList<>();
 			final List<InternetAddress> bccAddressList = new ArrayList<>();
+			InternetAddress bounceAddress = null;
+			InternetAddress notifyAddress = null;
 			String bodyText = null;
 			String bodyHtml = null;
 			CryptoType cryptoType = null;
@@ -401,6 +407,36 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						} else {
 							for (final InternetAddress bccAddress : bccAddresses) {
 								bccAddressList.add(bccAddress);
+							}
+						}
+					}
+				} else if ("-bounce".equalsIgnoreCase(arguments.get(i))) {
+					if (bounceAddress != null) {
+						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter bounce");
+					} else {
+						i++;
+						if (i >= arguments.size()) {
+							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter bounce");
+						} else {
+							try {
+								bounceAddress = MailUtilities.getEmailAddressesFromList(arguments.get(i))[0];
+							} catch (@SuppressWarnings("unused") final Exception e) {
+								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter bounce");
+							}
+						}
+					}
+				} else if ("-notify".equalsIgnoreCase(arguments.get(i))) {
+					if (notifyAddress != null) {
+						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter notify");
+					} else {
+						i++;
+						if (i >= arguments.size()) {
+							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter notify");
+						} else {
+							try {
+								notifyAddress = MailUtilities.getEmailAddressesFromList(arguments.get(i))[0];
+							} catch (@SuppressWarnings("unused") final Exception e) {
+								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter notify");
 							}
 						}
 					}
@@ -729,6 +765,14 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 				for (final InternetAddress bccAddress : bccAddressList) {
 					email.addBccAddress(bccAddress);
 				}
+
+				if (bounceAddress != null) {
+					email.setBounceAddress(bounceAddress);
+				}
+				if (notifyAddress != null) {
+					email.setNotificationAddress(notifyAddress);
+				}
+
 				email.setBodyText(bodyText);
 				email.setBodyHtml(bodyHtml);
 				email.setAttachments(attachments);
