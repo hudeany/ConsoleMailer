@@ -11,6 +11,10 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -204,6 +208,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			boolean test = false;
 			boolean force = false;
 			boolean silent = false;
+			ZonedDateTime eventStart = null;
+			ZonedDateTime eventEnd = null;
+			String eventLocation = null;
 
 			// Read the parameters
 			for (int i = 0; i < arguments.size(); i++) {
@@ -717,6 +724,48 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else {
 						silent = true;
 					}
+				} else if ("-eventstart".equalsIgnoreCase(arguments.get(i))) {
+					i++;
+					if (i >= arguments.size()) {
+						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventstart");
+					} else {
+						final String eventStartString = arguments.get(i);
+						if (Utilities.isBlank(eventStartString)) {
+							throw new ParameterException(arguments.get(i - 1), "Invalid empty value for parameter eventstart");
+						} else {
+							try {
+								eventStart = ZonedDateTime.of(LocalDateTime.parse(eventStartString.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), ZoneId.systemDefault());
+							} catch (final Exception e) {
+								throw new ParameterException(arguments.get(i - 1), "Invalid value format for parameter eventstart (yyyy-MM-dd HH:mm:ss): " + eventStartString);
+							}
+						}
+					}
+				} else if ("-eventend".equalsIgnoreCase(arguments.get(i))) {
+					i++;
+					if (i >= arguments.size()) {
+						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventend");
+					} else {
+						final String eventEndString = arguments.get(i);
+						if (Utilities.isBlank(eventEndString)) {
+							throw new ParameterException(arguments.get(i - 1), "Invalid empty value for parameter eventend");
+						} else {
+							try {
+								eventEnd = ZonedDateTime.of(LocalDateTime.parse(eventEndString.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), ZoneId.systemDefault());
+							} catch (final Exception e) {
+								throw new ParameterException(arguments.get(i - 1), "Invalid value format for parameter eventend (yyyy-MM-dd HH:mm:ss): " + eventEndString);
+							}
+						}
+					}
+				} else if ("-eventlocation".equalsIgnoreCase(arguments.get(i))) {
+					i++;
+					if (i >= arguments.size()) {
+						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventlocation");
+					} else {
+						eventLocation = arguments.get(i);
+						if (Utilities.isBlank(eventLocation)) {
+							throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter eventlocation");
+						}
+					}
 				} else {
 					throw new ParameterException(arguments.get(i), "Invalid parameter");
 				}
@@ -871,6 +920,17 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else {
 						throw new ParameterException("Missing parameter crypto");
 					}
+				}
+
+				if (eventStart != null) {
+					email.addEventInvitation(DateUtilities.createICalEventInvitation(
+							subject,
+							null,
+							eventStart,
+							eventEnd,
+							eventLocation,
+							fromAddress,
+							toAddressList));
 				}
 
 				final List<String> errors = email.checkValidData();

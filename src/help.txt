@@ -8,7 +8,7 @@ Mandatory parameters
   -p, -password "<password>":              Password for authentification to the smtp server
   -from "<email>":                         Email address of the sender of this email
   -s, -subject "<subject>":                Subject of this email
-  -to "<emailList>":                       Receiver email address of this email. Is not mandatory if one of -cc or -bcc is used
+  -to "<emailList>":                       Receiver email address of this email. This is not mandatory if one of -cc or -bcc is used
 
 Optional parameters
   -cfg "<filePath>":                       Using a text file including any preconfigured parameters            
@@ -60,6 +60,12 @@ Optional parameters
   -test:                                   Check DKIM configuration and crypto key configuration only. Does NOT send the email
   -f, -force:                              Send the email, even if there where DKIM or crypto configuration errors
   -silent:                                 Do not generate any terminal output except for hard errors, which where not overriden by "-force"
+  
+  -eventstart "<yyyy-MM-dd HH:mm:ss>":     Send an event invitation in iCal format with this email by setting its start time.
+                                             Participants are all TO-addresses
+                                             Subject
+  -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation)
+  -eventlocation "<location text>":        Event's location (optional for event invitation)
 
 Global standalone parameters
   help:                                    Show this help manual
