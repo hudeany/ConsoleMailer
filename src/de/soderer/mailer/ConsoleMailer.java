@@ -735,7 +735,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						} else {
 							try {
 								eventStart = ZonedDateTime.of(LocalDateTime.parse(eventStartString.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), ZoneId.systemDefault());
-							} catch (final Exception e) {
+							} catch (@SuppressWarnings("unused") final Exception e) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value format for parameter eventstart (yyyy-MM-dd HH:mm:ss): " + eventStartString);
 							}
 						}
@@ -751,7 +751,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						} else {
 							try {
 								eventEnd = ZonedDateTime.of(LocalDateTime.parse(eventEndString.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), ZoneId.systemDefault());
-							} catch (final Exception e) {
+							} catch (@SuppressWarnings("unused") final Exception e) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value format for parameter eventend (yyyy-MM-dd HH:mm:ss): " + eventEndString);
 							}
 						}
