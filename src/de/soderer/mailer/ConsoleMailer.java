@@ -45,10 +45,6 @@ import de.soderer.utilities.mail.Mailer;
 import de.soderer.utilities.mail.MailerConnectionSecurity;
 
 /**
- * TODO: Allow email addresses with display name
- */
-
-/**
  * The Main-Class of ConsoleMailer<br />
  */
 public class ConsoleMailer extends UpdateableConsoleApplication {
