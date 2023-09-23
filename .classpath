@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-1.69.jar"/>
 	<classpathentry kind="lib" path="lib/bcutil-jdk15on-1.69.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/dkim-23.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
