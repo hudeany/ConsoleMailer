@@ -1,3 +1,4 @@
+```
 Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host> -port <port> -user <user> -password <password> -from <from-address> -subject <subject> -to <to-address>
 Example: java -jar ConsoleMailer.jar -host <hostname>:<port> -starttls -user "<username>" -password "<password>" -from sender@example.com -to receiver@example.com -subject "Subject" -html "HtmlBody"
 
