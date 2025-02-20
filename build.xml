@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="build_jar" name="Create all Jars for Project ConsoleMailer">
-	<property name="version" value="22.4.1" />
-	<echo message="version: ${version}" />
+	<loadfile property="build.version" srcFile="build.version" failonerror="false" />
+	<property name="build.version" value="25.0.0" />
+	<echo message="build.version: ${build.version}" />
+	
+	<property file="${user.home}/git/codeSigning.properties" />
 	
 	<tstamp>
 		<format property="buildTime" pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
@@ -25,33 +28,35 @@
 		<delete dir="${buildPath}/bin" />
 	</target>
 
-	<target name="create_jar" depends="compile, create_versionfile">
-		<jar destfile="${buildPath}/ConsoleMailer.jar">
-			<manifest>
-				<attribute name="Main-Class" value="de.soderer.utilities.jarinjarloader.JarInJarLoader" />
-				<attribute name="Class-Path" value="." />
-				<attribute name="Rsrc-Main-Class" value="de.soderer.mailer.ConsoleMailer" />
-			</manifest>
-
-			<fileset dir="${buildPath}/bin" />
-
-			<zipfileset dir="src" includes="soderer-ca-certificate.pem" />
-
-			<zipfileset dir="lib" includes="*.jar" />
-
-			<zipfileset dir="${projectsPath}/JavaUtilities/target" includes="soderer-utilities-*.jar" />
-		</jar>
+	<available file="lib" property="libsAvailable" />
+	<target name="download_dependencies" unless="libsAvailable">
+		<mkdir dir="lib/" />
 		
-		<signjar destDir="${buildPath}" alias="soderer-de-java-2021" keystore="${user.home}/git/soderer-de-java-2021_keystore.jks" storepass="+u1F}&lt;}D(Kf_NvFrFX706574780T?LP'" keypass="5veQptNfbMrjcGaEQHh6" preservelastmodified="true" tsaurl="http://sha256timestamp.ws.symantec.com/sha256/timestamp">
-			<path>
-				<fileset dir="${buildPath}" includes="ConsoleMailer.jar" />
-			</path>
-		</signjar>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/1.80/bcutil-jdk18on-1.80.jar" dest="lib/" />
+
+		<get src="https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar" dest="lib/" />
+		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar" dest="lib/" />
+
+		<get src="https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar" dest="lib/" />
+		
+		<mkdir dir="lib_test/" />
+		
+		<get src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/2.2/hamcrest-core-2.2.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar" dest="lib_test/" />
 	</target>
 
-	<target name="compile">
+	<target name="compile" depends="download_dependencies">
 		<path id="build.classpath">
-			<fileset dir="${projectsPath}/JavaUtilities/target">
+			<fileset dir="lib">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="lib_soderer">
 				<include name="*.jar" />
 			</fileset>
 		</path>
@@ -72,9 +77,36 @@
 	</target>
 
 	<target name="create_versionfile">
+		<basename property="CaPublicKeyFileName" file="${CaPublicKey}"/>
+		<basename property="CaPublicKeyFileNameOld" file="${CaPublicKeyOld}"/>
+
 		<delete file="${buildPath}/bin/version.txt" />
-		<echo file="${buildPath}/bin/version.txt" append="false">${version}${line.separator}${buildTime}${line.separator}https://soderer.de/index.php?download=Versions.json${line.separator}soderer-ca-certificate.pem${line.separator}</echo>
+		<echo file="${buildPath}/bin/version.txt" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
 		<delete file="src/version.txt" />
-		<echo file="src/version.txt" append="false">${version}${line.separator}${buildTime}${line.separator}https://soderer.de/index.php?download=Versions.json${line.separator}soderer-ca-certificate.pem${line.separator}</echo>
+		<echo file="src/version.txt" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
+	</target>
+
+	<target name="create_jar" depends="compile, create_versionfile">
+		<jar destfile="${buildPath}/ConsoleMailer-${build.version}.jar">
+			<manifest>
+				<attribute name="Main-Class" value="de.soderer.utilities.jarinjarloader.JarInJarLoader" />
+				<attribute name="Class-Path" value="." />
+				<attribute name="Rsrc-Main-Class" value="de.soderer.mailer.ConsoleMailer" />
+			</manifest>
+
+			<fileset dir="${buildPath}/bin" />
+
+			<zipfileset dir="src" includes="soderer-ca-certificate.pem" />
+
+			<zipfileset dir="lib" includes="*.jar" />
+
+			<zipfileset dir="${projectsPath}/JavaUtilities/target" includes="soderer-utilities-*.jar" />
+		</jar>
+		
+		<signjar destDir="${buildPath}" alias="${CodeSigningKeyAlias}" keystore="${CodeSigningKeyStore}" storepass="${CodeSigningKeyStorePassword}" keypass="${CodeSigningKeyPassword}" preservelastmodified="true" tsaurl="${TsaUrl}">
+			<path>
+				<fileset dir="${buildPath}" includes="ConsoleMailer-${build.version}.jar" />
+			</path>
+		</signjar>
 	</target>
 </project>

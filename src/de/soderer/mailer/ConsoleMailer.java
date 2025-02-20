@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import javax.mail.internet.InternetAddress;
+import java.util.Locale;
 
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import de.soderer.utilities.ConfigurationProperties;
 import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
@@ -37,12 +37,16 @@ import de.soderer.utilities.crypto.CryptographicUtilities;
 import de.soderer.utilities.crypto.PGPUtilities;
 import de.soderer.utilities.crypto.PGPUtilities.PgpHashMethod;
 import de.soderer.utilities.crypto.PGPUtilities.PgpSymmetricEncryptionMethod;
+import de.soderer.utilities.http.ProxyConfiguration;
+import de.soderer.utilities.http.ProxyConfiguration.ProxyConfigurationType;
 import de.soderer.utilities.mail.CryptoType;
 import de.soderer.utilities.mail.Email;
 import de.soderer.utilities.mail.MailAttachment;
 import de.soderer.utilities.mail.MailUtilities;
 import de.soderer.utilities.mail.Mailer;
 import de.soderer.utilities.mail.MailerConnectionSecurity;
+import de.soderer.utilities.swing.ApplicationConfigurationDialog;
+import jakarta.mail.internet.InternetAddress;
 
 /**
  * The Main-Class of ConsoleMailer<br />
@@ -66,7 +70,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	public static String VERSIONINFO_DOWNLOAD_URL = null;
 
 	/** Trusted CA certificate for updates **/
-	public static String TRUSTED_UPDATE_CA_CERTIFICATE = null;
+	public static String TRUSTED_UPDATE_CA_CERTIFICATES = null;
 
 	/** The usage message */
 	private static String getUsageMessage() {
@@ -109,7 +113,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 				VERSIONINFO_DOWNLOAD_URL = versionInfoLines.get(2);
 			}
 			if (versionInfoLines.size() >= 4) {
-				TRUSTED_UPDATE_CA_CERTIFICATE = versionInfoLines.get(3);
+				TRUSTED_UPDATE_CA_CERTIFICATES = versionInfoLines.get(3);
 			}
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			// Without the version.txt file we may not go on
@@ -119,6 +123,19 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 
 		final List<String> arguments = new ArrayList<>(Arrays.asList(args));
 		final List<File> configFiles = new ArrayList<>();
+
+		ConfigurationProperties applicationConfiguration;
+		try {
+			applicationConfiguration = new ConfigurationProperties(ConsoleMailer.APPLICATION_NAME, true);
+			ConsoleMailer.setupDefaultConfig(applicationConfiguration);
+		} catch (@SuppressWarnings("unused") final Exception e) {
+			System.err.println("Invalid application configuration");
+			return 1;
+		}
+
+		final ProxyConfigurationType proxyConfigurationType = ProxyConfigurationType.getFromString(applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_PROXY_CONFIGURATION_TYPE));
+		final String proxyUrl = applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_PROXY_URL);
+		final ProxyConfiguration proxyConfiguration = new ProxyConfiguration(proxyConfigurationType, proxyUrl);
 
 		try {
 			if (arguments.size() == 0) {
@@ -136,13 +153,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
 						if (arguments.size() > i + 2) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false);
 						} else if (arguments.size() > i + 1) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, arguments.get(i + 1), null, null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, false);
 						} else {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATE, null, null, null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, false);
 						}
 						return 1;
 					} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
@@ -978,5 +995,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	 */
 	public ConsoleMailer() throws Exception {
 		super(APPLICATION_NAME, VERSION);
+	}
+
+	public static void setupDefaultConfig(final ConfigurationProperties applicationConfiguration) {
+		if (Utilities.isBlank(applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_LANGUAGE))) {
+			applicationConfiguration.set(ApplicationConfigurationDialog.CONFIG_LANGUAGE, Locale.getDefault().getLanguage());
+		}
 	}
 }
