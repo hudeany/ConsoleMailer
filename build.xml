@@ -62,10 +62,6 @@
 			</fileset>
 		</path>
 
-		<!-- Compile JarInJarLoader -->
-		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="${projectsPath}/JavaUtilities/src/main/java/de/soderer/utilities/jarinjarloader" includeantruntime="false" encoding="UTF-8" />
-
-		<!-- Compile Java classes -->
 		<javac debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" source="1.8" target="1.8" srcdir="src" includeantruntime="false" encoding="UTF-8" classpath="lib/*">
 			<classpath refid="build.classpath" />
 		</javac>
@@ -90,18 +86,15 @@
 	<target name="create_jar" depends="compile, create_versionfile">
 		<jar destfile="${buildPath}/ConsoleMailer-${build.version}.jar">
 			<manifest>
-				<attribute name="Main-Class" value="de.soderer.utilities.jarinjarloader.JarInJarLoader" />
+				<attribute name="Main-Class" value="de.soderer.ConsoleMailer" />
 				<attribute name="Class-Path" value="." />
 				<attribute name="Rsrc-Main-Class" value="de.soderer.mailer.ConsoleMailer" />
 			</manifest>
 
-			<fileset dir="${buildPath}/bin" />
-
-			<zipfileset dir="src" includes="soderer-ca-certificate.pem" />
-
+			<zipfileset file="${CaPublicKey}" />
+			<zipfileset file="${CaPublicKeyOld}" />
 			<zipfileset dir="lib" includes="*.jar" />
-
-			<zipfileset dir="${projectsPath}/JavaUtilities/target" includes="soderer-utilities-*.jar" />
+			<zipfileset dir="lib_soderer" includes="*.jar" />
 		</jar>
 		
 		<signjar destDir="${buildPath}" alias="${CodeSigningKeyAlias}" keystore="${CodeSigningKeyStore}" storepass="${CodeSigningKeyStorePassword}" keypass="${CodeSigningKeyPassword}" preservelastmodified="true" tsaurl="${TsaUrl}">
