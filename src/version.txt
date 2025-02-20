@@ -1,4 +1,0 @@
-25.0.0
-2025-45-20 20:45:55
-https://soderer.de/index.php?download=Versions.json
-soderer-ca-v2-2024-certificate.pem, soderer-ca-certificate.pem
