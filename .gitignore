@@ -1,3 +1,5 @@
 /bin/
 /build/
 /lib/
+/lib_test/
+/lib_sources/
