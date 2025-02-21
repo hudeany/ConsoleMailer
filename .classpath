@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/dkim-25.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.activation-api-2.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.mail-api-2.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/angus-activation-2.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

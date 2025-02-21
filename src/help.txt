@@ -66,6 +66,8 @@ Optional parameters
                                              Subject
   -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation)
   -eventlocation "<location text>":        Event's location (optional for event invitation)
+  
+  -verbose:                                Verbose error messages on console output
 
 Global standalone parameters
   help:                                    Show this help manual

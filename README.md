@@ -10,6 +10,7 @@ Dependencies (Automatically downloaded by build job):
  - jakarta.activation-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar
  - jakarta.mail-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar
  - Eclipse angus-mail-2.0.3.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar
+ - Eclipse angus-activation-2.0.2.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar
 
  - Soderer.de dkim-25.1.0.jar: https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar
 
