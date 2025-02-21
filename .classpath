@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="lib/jakarta.mail-api-2.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/angus-activation-2.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/json-25.1.2.jar"/>
+	<classpathentry kind="lib" path="lib_soderer/soderer-utilities-25.1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
