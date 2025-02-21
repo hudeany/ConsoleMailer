@@ -1,6 +1,6 @@
 Tool for sending emails with DKIM signature and enrypted or signed content via GPG/PGP and S/MIME
 
-Dependencies (Automatically downloaded by build job:
+Dependencies (Automatically downloaded by build job):
  - bcjmail-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar
  - bcpg-jdk18on-1.80.jar: "https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar
  - bcpkix-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar
