@@ -1,3 +1,18 @@
+Tool for sending emails with DKIM signature and enrypted or signed contend via GPG/PGP and S/MIME
+
+Dependencies (Automatically downloaded by build job:
+  bcjmail-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar
+  bcpg-jdk18on-1.80.jar: "https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar
+  bcpkix-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar
+  bcprov-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar
+  bcutil-jdk18on-1.80.jar: <get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/1.80/bcutil-jdk18on-1.80.jar
+
+  jakarta.activation-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar
+  jakarta.mail-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar
+  Eclipse angus-mail-2.0.3.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar
+
+	Soderer.de dkim-25.1.0.jar: https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar
+
 ```
 Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host> -port <port> -user <user> -password <password> -from <from-address> -subject <subject> -to <to-address>
 Example: java -jar ConsoleMailer.jar -host <hostname>:<port> -starttls -user "<username>" -password "<password>" -from sender@example.com -to receiver@example.com -subject "Subject" -html "HtmlBody"
