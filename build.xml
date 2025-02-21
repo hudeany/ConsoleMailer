@@ -44,6 +44,7 @@
 		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar" dest="lib/" />
 
 		<get src="https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar" dest="lib/" />
+		<get src="https://github.com/hudeany/json/releases/download/25.1.2/json-25.1.2.jar" dest="lib/" />
 	</target>
 
 	<target name="compile" depends="download_dependencies">

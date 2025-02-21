@@ -13,6 +13,7 @@ Dependencies (Automatically downloaded by build job):
  - Eclipse angus-activation-2.0.2.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar
 
  - Soderer.de dkim-25.1.0.jar: https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar
+ - Soderer.de json-25.1.2.jar: https://github.com/hudeany/json/releases/download/25.1.2/json-25.1.2.jar
 
 ```
 Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host> -port <port> -user <user> -password <password> -from <from-address> -subject <subject> -to <to-address>
