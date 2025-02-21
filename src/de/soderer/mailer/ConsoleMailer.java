@@ -137,6 +137,8 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 		final String proxyUrl = applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_PROXY_URL);
 		final ProxyConfiguration proxyConfiguration = new ProxyConfiguration(proxyConfigurationType, proxyUrl);
 
+		boolean verbose = false;
+
 		try {
 			if (arguments.size() == 0) {
 				System.out.println(getUsageMessage());
@@ -737,6 +739,12 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else {
 						silent = true;
 					}
+				} else if ("-verbose".equalsIgnoreCase(arguments.get(i))) {
+					if (verbose) {
+						throw new ParameterException(arguments.get(i - 1), "Multiple parameter verbose");
+					} else {
+						verbose = true;
+					}
 				} else if ("-eventstart".equalsIgnoreCase(arguments.get(i))) {
 					i++;
 					if (i >= arguments.size()) {
@@ -978,11 +986,17 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			}
 		} catch (final ParameterException e) {
 			System.err.println(e.getMessage());
+			if (verbose) {
+				e.printStackTrace();
+			}
 			System.err.println();
 			System.err.println("For help information use parameter \"help\"");
 			return 1;
 		} catch (final Exception e) {
 			System.err.println(e.getMessage());
+			if (verbose) {
+				e.printStackTrace();
+			}
 
 			return 1;
 		}

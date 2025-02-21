@@ -18,7 +18,7 @@ Optional parameters
   -ssltls:                                 TLS/SSL connection security to the smtp server. Default is none
   -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email (UTF-8, ISO-8859-1, ...)
   
-  -replyto:                                Reply to email address if it differs from the senders email address
+  -replyto "<replytoemailList>":           Reply to email address if it differs from the senders email address
   -cc "<emailList>":                       CC recipient address list
   -bcc "<emailList>":                      BCC recipient address list
   
@@ -66,6 +66,8 @@ Optional parameters
                                              Subject
   -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation)
   -eventlocation "<location text>":        Event's location (optional for event invitation)
+  
+  -verbose:                                Verbose error messages on console output
 
 Global standalone parameters
   help:                                    Show this help manual
