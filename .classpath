@@ -6,7 +6,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_soderer/soderer-utilities-25.1.1.jar" sourcepath="lib_soderer/soderer-utilities-25.1.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/angus-mail-2.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/bcjmail-jdk18on-1.80.jar"/>
 	<classpathentry kind="lib" path="lib/bcpg-jdk18on-1.80.jar"/>
