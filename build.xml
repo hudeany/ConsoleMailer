@@ -45,6 +45,8 @@
 
 		<get src="https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar" dest="lib/" />
 		<get src="https://github.com/hudeany/json/releases/download/25.1.2/json-25.1.2.jar" dest="lib/" />
+		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/25.1.2/proxyautoconfig-25.1.2.jar" dest="lib/" />
+		<get src="https://github.com/hudeany/network/releases/download/25.1.0/network-25.1.0.jar" dest="lib/" />
 	</target>
 
 	<target name="compile" depends="download_dependencies">

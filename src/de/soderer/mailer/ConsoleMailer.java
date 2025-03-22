@@ -24,6 +24,8 @@ import java.util.Locale;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import de.soderer.pac.utilities.ProxyConfiguration;
+import de.soderer.pac.utilities.ProxyConfiguration.ProxyConfigurationType;
 import de.soderer.utilities.ConfigurationProperties;
 import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
@@ -37,8 +39,6 @@ import de.soderer.utilities.crypto.CryptographicUtilities;
 import de.soderer.utilities.crypto.PGPUtilities;
 import de.soderer.utilities.crypto.PGPUtilities.PgpHashMethod;
 import de.soderer.utilities.crypto.PGPUtilities.PgpSymmetricEncryptionMethod;
-import de.soderer.utilities.http.ProxyConfiguration;
-import de.soderer.utilities.http.ProxyConfiguration.ProxyConfigurationType;
 import de.soderer.utilities.mail.CryptoType;
 import de.soderer.utilities.mail.Email;
 import de.soderer.utilities.mail.MailAttachment;
