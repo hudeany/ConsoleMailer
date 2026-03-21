@@ -167,13 +167,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
 						if (arguments.size() > i + 2) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false, false);
 						} else if (arguments.size() > i + 1) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, false, false);
 						} else {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, false, false);
 						}
 						return 1;
 					} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
