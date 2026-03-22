@@ -43,10 +43,14 @@
 		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar" dest="lib/" />
 		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar" dest="lib/" />
 
-		<get src="https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar" dest="lib/" />
-		<get src="https://github.com/hudeany/json/releases/download/25.1.2/json-25.1.2.jar" dest="lib/" />
-		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/25.1.8/proxyautoconfig-25.1.8.jar" dest="lib/" />
-		<get src="https://github.com/hudeany/network/releases/download/25.1.2/network-25.1.2.jar" dest="lib/" />
+		<property name="dkim.version" value="25.1.0" />
+		<get src="https://github.com/hudeany/dkim/releases/download/${dkim.version}/dkim-${dkim.version}.jar" dest="lib/" />
+		<property name="json.version" value="26.1.31" />
+		<get src="https://github.com/hudeany/json/releases/download/${json.version}/json-${json.version}.jar" dest="lib/" />
+		<property name="ProxyAutoConfig.version" value="26.0.0" />
+		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/${ProxyAutoConfig.version}/proxyautoconfig-${ProxyAutoConfig.version}.jar" dest="lib/" />
+		<property name="network.version" value="26.0.10" />
+		<get src="https://github.com/hudeany/network/releases/download/${network.version}/network-${network.version}.jar" dest="lib/" />
 
 		<property name="soderer-utilities.version" value="26.1.24" />
 		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
