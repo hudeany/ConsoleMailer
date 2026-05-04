@@ -45,14 +45,14 @@
 
 		<property name="dkim.version" value="25.1.0" />
 		<get src="https://github.com/hudeany/dkim/releases/download/${dkim.version}/dkim-${dkim.version}.jar" dest="lib/" />
-		<property name="json.version" value="26.1.31" />
+		<property name="json.version" value="26.1.38" />
 		<get src="https://github.com/hudeany/json/releases/download/${json.version}/json-${json.version}.jar" dest="lib/" />
 		<property name="ProxyAutoConfig.version" value="26.0.0" />
 		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/${ProxyAutoConfig.version}/proxyautoconfig-${ProxyAutoConfig.version}.jar" dest="lib/" />
 		<property name="network.version" value="26.0.10" />
 		<get src="https://github.com/hudeany/network/releases/download/${network.version}/network-${network.version}.jar" dest="lib/" />
 
-		<property name="soderer-utilities.version" value="26.1.24" />
+		<property name="soderer-utilities.version" value="26.1.36" />
 		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
 		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}-sources.jar" dest="lib/" />
 	</target>
