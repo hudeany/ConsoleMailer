@@ -19,14 +19,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
-import de.soderer.pac.PacScriptParser;
-import de.soderer.pac.utilities.ProxyConfiguration;
-import de.soderer.pac.utilities.ProxyConfiguration.ProxyConfigurationType;
 import de.soderer.utilities.ConfigurationProperties;
 import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
@@ -46,7 +42,6 @@ import de.soderer.utilities.mail.MailAttachment;
 import de.soderer.utilities.mail.MailUtilities;
 import de.soderer.utilities.mail.Mailer;
 import de.soderer.utilities.mail.MailerConnectionSecurity;
-import de.soderer.utilities.swing.ApplicationConfigurationDialog;
 import jakarta.mail.internet.InternetAddress;
 
 /**
@@ -136,19 +131,6 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			return 1;
 		}
 
-		if (!applicationConfiguration.containsKey(ApplicationConfigurationDialog.CONFIG_PROXY_CONFIGURATION_TYPE)) {
-			if (PacScriptParser.findPacFileUrlByWpad() != null) {
-				applicationConfiguration.set(ApplicationConfigurationDialog.CONFIG_PROXY_CONFIGURATION_TYPE, ProxyConfigurationType.WPAD.name());
-			} else {
-				applicationConfiguration.set(ApplicationConfigurationDialog.CONFIG_PROXY_CONFIGURATION_TYPE, ProxyConfigurationType.None.name());
-			}
-			applicationConfiguration.save();
-		}
-
-		final ProxyConfigurationType proxyConfigurationType = ProxyConfigurationType.getFromString(applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_PROXY_CONFIGURATION_TYPE));
-		final String proxyUrl = applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_PROXY_URL);
-		final ProxyConfiguration proxyConfiguration = new ProxyConfiguration(proxyConfigurationType, proxyUrl);
-
 		boolean verbose = false;
 
 		try {
@@ -167,13 +149,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
 						if (arguments.size() > i + 2) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, null, false, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, null, false, false);
 						} else if (arguments.size() > i + 1) {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, null, false, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, null, false, false);
 						} else {
 							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, proxyConfiguration, ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, null, false, false);
+							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, null, false, false);
 						}
 						return 1;
 					} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
@@ -1024,8 +1006,6 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	}
 
 	public static void setupDefaultConfig(final ConfigurationProperties applicationConfiguration) {
-		if (Utilities.isBlank(applicationConfiguration.get(ApplicationConfigurationDialog.CONFIG_LANGUAGE))) {
-			applicationConfiguration.set(ApplicationConfigurationDialog.CONFIG_LANGUAGE, Locale.getDefault().getLanguage());
-		}
+		applicationConfiguration.setupDefaultConfig();
 	}
 }
