@@ -25,34 +25,157 @@
 		<delete dir="${buildPath}/bin" />
 	</target>
 
-	<available file="lib" property="libsAvailable" />
-	<target name="download_dependencies" unless="libsAvailable">
+	<property name="bcjmail.version" value="1.80" />
+	<property name="bcpg.version" value="1.80" />
+	<property name="bcpkix.version" value="1.80" />
+	<property name="bcprov.version" value="1.80" />
+	<property name="bcutil.version" value="1.80" />
+	<property name="jakarta-activation-api.version" value="2.1.3" />
+	<property name="jakarta-mail-api.version" value="2.1.3" />
+	<property name="angus-mail.version" value="2.0.3" />
+	<property name="angus-activation.version" value="2.0.2" />
+	<property name="dkim.version" value="26.1.0" />
+	<property name="json.version" value="26.2.1" />
+	<property name="proxyautoconfig.version" value="26.1.0" />
+	<property name="network.version" value="26.0.27" />
+	<property name="soderer-utilities.version" value="26.2.39" />
+
+	<available file="lib/bcjmail-jdk18on-${bcjmail.version}.jar" property="bcjmail.available" />
+	<target name="get_bcjmail" unless="bcjmail.available">
 		<mkdir dir="lib/" />
-		
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/1.80/bcutil-jdk18on-1.80.jar" dest="lib/" />
+		<delete>
+			<fileset dir="lib" includes="bcjmail-jdk18on-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/${bcjmail.version}/bcjmail-jdk18on-${bcjmail.version}.jar" dest="lib/" />
+	</target>
 
-		<get src="https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar" dest="lib/" />
-		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar" dest="lib/" />
+	<available file="lib/bcpg-jdk18on-${bcpg.version}.jar" property="bcpg.available" />
+	<target name="get_bcpg" unless="bcpg.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="bcpg-jdk18on-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/${bcpg.version}/bcpg-jdk18on-${bcpg.version}.jar" dest="lib/" />
+	</target>
 
-		<property name="dkim.version" value="26.1.0" />
+	<available file="lib/bcpkix-jdk18on-${bcpkix.version}.jar" property="bcpkix.available" />
+	<target name="get_bcpkix" unless="bcpkix.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="bcpkix-jdk18on-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/${bcpkix.version}/bcpkix-jdk18on-${bcpkix.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/bcprov-jdk18on-${bcprov.version}.jar" property="bcprov.available" />
+	<target name="get_bcprov" unless="bcprov.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="bcprov-jdk18on-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/${bcprov.version}/bcprov-jdk18on-${bcprov.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/bcutil-jdk18on-${bcutil.version}.jar" property="bcutil.available" />
+	<target name="get_bcutil" unless="bcutil.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="bcutil-jdk18on-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/${bcutil.version}/bcutil-jdk18on-${bcutil.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/jakarta.activation-api-${jakarta-activation-api.version}.jar" property="jakarta-activation-api.available" />
+	<target name="get_jakarta_activation_api" unless="jakarta-activation-api.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="jakarta.activation-api-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/${jakarta-activation-api.version}/jakarta.activation-api-${jakarta-activation-api.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/jakarta.mail-api-${jakarta-mail-api.version}.jar" property="jakarta-mail-api.available" />
+	<target name="get_jakarta_mail_api" unless="jakarta-mail-api.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="jakarta.mail-api-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/${jakarta-mail-api.version}/jakarta.mail-api-${jakarta-mail-api.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/angus-mail-${angus-mail.version}.jar" property="angus-mail.available" />
+	<target name="get_angus_mail" unless="angus-mail.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="angus-mail-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/${angus-mail.version}/angus-mail-${angus-mail.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/angus-activation-${angus-activation.version}.jar" property="angus-activation.available" />
+	<target name="get_angus_activation" unless="angus-activation.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="angus-activation-*.jar" />
+		</delete>
+		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/${angus-activation.version}/angus-activation-${angus-activation.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/dkim-${dkim.version}.jar" property="dkim.available" />
+	<target name="get_dkim" unless="dkim.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="dkim-*.jar" />
+		</delete>
 		<get src="https://github.com/hudeany/dkim/releases/download/${dkim.version}/dkim-${dkim.version}.jar" dest="lib/" />
-		<property name="json.version" value="26.2.1" />
-		<get src="https://github.com/hudeany/json/releases/download/${json.version}/json-${json.version}.jar" dest="lib/" />
-		<property name="proxyautoconfig.version" value="26.1.0" />
-		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/${proxyautoconfig.version}/proxyautoconfig-${proxyautoconfig.version}.jar" dest="lib/" />
-		<property name="network.version" value="26.0.27" />
-		<get src="https://github.com/hudeany/network/releases/download/${network.version}/network-${network.version}.jar" dest="lib/" />
+	</target>
 
-		<property name="soderer-utilities.version" value="26.2.39" />
+	<available file="lib/json-${json.version}.jar" property="json.available" />
+	<target name="get_json" unless="json.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="json-*.jar" />
+		</delete>
+		<get src="https://github.com/hudeany/json/releases/download/${json.version}/json-${json.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/proxyautoconfig-${proxyautoconfig.version}.jar" property="proxyautoconfig.available" />
+	<target name="get_proxyautoconfig" unless="proxyautoconfig.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="proxyautoconfig-*.jar" />
+		</delete>
+		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/${proxyautoconfig.version}/proxyautoconfig-${proxyautoconfig.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/network-${network.version}.jar" property="network.available" />
+	<target name="get_network" unless="network.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="network-*.jar" />
+		</delete>
+		<get src="https://github.com/hudeany/network/releases/download/${network.version}/network-${network.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/soderer-utilities-${soderer-utilities.version}.jar" property="soderer-utilities.available" />
+	<target name="get_soderer_utilities" unless="soderer-utilities.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="soderer-utilities-*.jar" excludes="soderer-utilities-*-sources.jar" />
+		</delete>
 		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
+	</target>
+
+	<available file="lib/soderer-utilities-${soderer-utilities.version}-sources.jar" property="soderer-utilities-sources.available" />
+	<target name="get_soderer_utilities_sources" unless="soderer-utilities-sources.available">
+		<mkdir dir="lib/" />
+		<delete>
+			<fileset dir="lib" includes="soderer-utilities-*-sources.jar" />
+		</delete>
 		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}-sources.jar" dest="lib/" />
 	</target>
+
+	<target name="download_dependencies" depends="get_bcjmail, get_bcpg, get_bcpkix, get_bcprov, get_bcutil, get_jakarta_activation_api, get_jakarta_mail_api, get_angus_mail, get_angus_activation, get_dkim, get_json, get_proxyautoconfig, get_network, get_soderer_utilities, get_soderer_utilities_sources" />
 
 	<target name="compile" depends="download_dependencies">
 		<path id="build.classpath">
