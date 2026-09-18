@@ -163,7 +163,7 @@
 		<delete>
 			<fileset dir="lib" includes="soderer-utilities-*.jar" excludes="soderer-utilities-*-sources.jar" />
 		</delete>
-		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
+		<get src="https://soderer.de/maven2/de/soderer/soderer-utilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
 	</target>
 
 	<available file="lib/soderer-utilities-${soderer-utilities.version}-sources.jar" property="soderer-utilities-sources.available" />
@@ -172,7 +172,7 @@
 		<delete>
 			<fileset dir="lib" includes="soderer-utilities-*-sources.jar" />
 		</delete>
-		<get src="https://soderer.de/maven2/de/soderer/JavaUtilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}-sources.jar" dest="lib/" />
+		<get src="https://soderer.de/maven2/de/soderer/soderer-utilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}-sources.jar" dest="lib/" />
 	</target>
 
 	<target name="download_dependencies" depends="get_bcjmail, get_bcpg, get_bcpkix, get_bcprov, get_bcutil, get_jakarta_activation_api, get_jakarta_mail_api, get_angus_mail, get_angus_activation, get_dkim, get_json, get_proxyautoconfig, get_network, get_soderer_utilities, get_soderer_utilities_sources" />
