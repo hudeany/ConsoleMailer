@@ -38,7 +38,7 @@
 	<property name="json.version" value="26.2.3" />
 	<property name="proxyautoconfig.version" value="26.1.1" />
 	<property name="network.version" value="26.0.31" />
-	<property name="soderer-utilities.version" value="26.2.52" />
+	<property name="soderer-utilities.version" value="26.2.53" />
 
 	<available file="lib/bcjmail-jdk18on-${bcjmail.version}.jar" property="bcjmail.available" />
 	<target name="get_bcjmail" unless="bcjmail.available">
