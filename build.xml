@@ -34,11 +34,11 @@
 	<property name="jakarta-mail-api.version" value="2.1.3" />
 	<property name="angus-mail.version" value="2.0.3" />
 	<property name="angus-activation.version" value="2.0.2" />
-	<property name="dkim.version" value="26.1.0" />
-	<property name="json.version" value="26.2.1" />
-	<property name="proxyautoconfig.version" value="26.1.0" />
-	<property name="network.version" value="26.0.30" />
-	<property name="soderer-utilities.version" value="26.2.48" />
+	<property name="dkim.version" value="26.1.1" />
+	<property name="json.version" value="26.2.3" />
+	<property name="proxyautoconfig.version" value="26.1.1" />
+	<property name="network.version" value="26.0.31" />
+	<property name="soderer-utilities.version" value="26.2.52" />
 
 	<available file="lib/bcjmail-jdk18on-${bcjmail.version}.jar" property="bcjmail.available" />
 	<target name="get_bcjmail" unless="bcjmail.available">
