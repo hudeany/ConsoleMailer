@@ -1,29 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="build_jar" name="Create all Jars for Project ConsoleMailer">
-	<loadfile property="build.version" srcFile="build.version" failonerror="false" />
-	<property name="build.version" value="25.0.0" />
-	<echo message="build.version: ${build.version}" />
-	
-	<property file="${user.home}/git/codeSigning.properties" />
-	
-	<tstamp>
-		<format property="buildTime" pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
-	</tstamp>
-	<echo message="buildTime: ${buildTime}" />
-
-	<property name="buildPath" value="build" />
-	<echo message="buildPath: ${buildPath}" />
-
-	<target name="build_jar" depends="cleanup_before, create_jar, cleanup_after" />
-	
-	<target name="cleanup_before">
-		<delete dir="${buildPath}/bin" />
-		<mkdir dir="${buildPath}/bin" />
-	</target>
-
-	<target name="cleanup_after">
-		<delete dir="${buildPath}/bin" />
-	</target>
+	<property name="antbuildhelp.version" value="26.0.3" />
 
 	<property name="bcjmail.version" value="1.80" />
 	<property name="bcpg.version" value="1.80" />
@@ -40,142 +17,84 @@
 	<property name="network.version" value="26.0.31" />
 	<property name="soderer-utilities.version" value="26.2.53" />
 
-	<available file="lib/bcjmail-jdk18on-${bcjmail.version}.jar" property="bcjmail.available" />
-	<target name="get_bcjmail" unless="bcjmail.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="bcjmail-jdk18on-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/${bcjmail.version}/bcjmail-jdk18on-${bcjmail.version}.jar" dest="lib/" />
+	<target name="build_jar" depends="build_setup, cleanup_before, create_jar, sign_jar, cleanup_after" />
+
+	<target name="probe-proxy">
+		<condition property="proxy.enabled">
+			<and>
+				<isset property="proxy.host" />
+				<isreachable host="${proxy.host}" />
+			</and>
+		</condition>
 	</target>
 
-	<available file="lib/bcpg-jdk18on-${bcpg.version}.jar" property="bcpg.available" />
-	<target name="get_bcpg" unless="bcpg.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="bcpg-jdk18on-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/${bcpg.version}/bcpg-jdk18on-${bcpg.version}.jar" dest="lib/" />
+	<target name="proxy" depends="probe-proxy" if="proxy.enabled">
+		<property name="proxy.port" value="80" />
+		<property name="proxy.user" value="" />
+		<property name="proxy.pass" value="" />
+		<setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" proxyuser="${proxy.user}" proxypassword="${proxy.pass}" />
 	</target>
 
-	<available file="lib/bcpkix-jdk18on-${bcpkix.version}.jar" property="bcpkix.available" />
-	<target name="get_bcpkix" unless="bcpkix.available">
-		<mkdir dir="lib/" />
+	<available file="lib_build/antbuildhelp-${antbuildhelp.version}.jar" property="antbuildhelp.available" />
+	<target name="get_antbuildhelp" unless="antbuildhelp.available">
+		<mkdir dir="lib_build/" />
 		<delete>
-			<fileset dir="lib" includes="bcpkix-jdk18on-*.jar" />
+			<fileset dir="lib_build" includes="antbuildhelp-*.jar" />
 		</delete>
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/${bcpkix.version}/bcpkix-jdk18on-${bcpkix.version}.jar" dest="lib/" />
+		<get src="https://github.com/hudeany/antbuildhelp/releases/download/${antbuildhelp.version}/antbuildhelp-${antbuildhelp.version}.jar" dest="lib_build/" />
 	</target>
 
-	<available file="lib/bcprov-jdk18on-${bcprov.version}.jar" property="bcprov.available" />
-	<target name="get_bcprov" unless="bcprov.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="bcprov-jdk18on-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/${bcprov.version}/bcprov-jdk18on-${bcprov.version}.jar" dest="lib/" />
+	<!-- typedef must run on every build (Ant doesn't remember task registrations between runs),
+	     so it lives in its own target with no "unless" - not inside get_antbuildhelp, which is
+	     skipped whenever the jar is already cached from a previous run. -->
+	<target name="register_antbuildhelp" depends="get_antbuildhelp">
+		<typedef resource="de/soderer/antbuildhelp/antlib.xml" classpath="lib_build/antbuildhelp-${antbuildhelp.version}.jar" />
 	</target>
 
-	<available file="lib/bcutil-jdk18on-${bcutil.version}.jar" property="bcutil.available" />
-	<target name="get_bcutil" unless="bcutil.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="bcutil-jdk18on-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/${bcutil.version}/bcutil-jdk18on-${bcutil.version}.jar" dest="lib/" />
+	<target name="build_setup" depends="register_antbuildhelp">
+		<loadfile property="build.version" srcFile="build.version" failonerror="false" />
+		<property name="build.version" value="25.0.0" />
+		<echo message="build.version: ${build.version}" />
+
+		<property file="${user.home}/git/codeSigning.properties" />
+
+		<tstamp>
+			<format property="buildTime" pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
+		</tstamp>
+		<echo message="buildTime: ${buildTime}" />
+
+		<property name="buildPath" value="build" />
+		<echo message="buildPath: ${buildPath}" />
 	</target>
 
-	<available file="lib/jakarta.activation-api-${jakarta-activation-api.version}.jar" property="jakarta-activation-api.available" />
-	<target name="get_jakarta_activation_api" unless="jakarta-activation-api.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="jakarta.activation-api-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/${jakarta-activation-api.version}/jakarta.activation-api-${jakarta-activation-api.version}.jar" dest="lib/" />
+	<target name="cleanup_before">
+		<delete dir="${buildPath}/bin" />
+		<mkdir dir="${buildPath}/bin" />
 	</target>
 
-	<available file="lib/jakarta.mail-api-${jakarta-mail-api.version}.jar" property="jakarta-mail-api.available" />
-	<target name="get_jakarta_mail_api" unless="jakarta-mail-api.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="jakarta.mail-api-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/${jakarta-mail-api.version}/jakarta.mail-api-${jakarta-mail-api.version}.jar" dest="lib/" />
+	<target name="cleanup_after">
+		<delete dir="${buildPath}/bin" />
 	</target>
 
-	<available file="lib/angus-mail-${angus-mail.version}.jar" property="angus-mail.available" />
-	<target name="get_angus_mail" unless="angus-mail.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="angus-mail-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/${angus-mail.version}/angus-mail-${angus-mail.version}.jar" dest="lib/" />
-	</target>
+	<target name="download_dependencies" depends="proxy">
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcjmail-jdk18on" version="${bcjmail.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpg-jdk18on" version="${bcpg.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpkix-jdk18on" version="${bcpkix.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcprov-jdk18on" version="${bcprov.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcutil-jdk18on" version="${bcutil.version}" />
+		<getMavenDependency groupId="jakarta.activation" artifactId="jakarta.activation-api" version="${jakarta-activation-api.version}" />
+		<getMavenDependency groupId="jakarta.mail" artifactId="jakarta.mail-api" version="${jakarta-mail-api.version}" />
+		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-mail" version="${angus-mail.version}" />
+		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-activation" version="${angus-activation.version}" />
 
-	<available file="lib/angus-activation-${angus-activation.version}.jar" property="angus-activation.available" />
-	<target name="get_angus_activation" unless="angus-activation.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="angus-activation-*.jar" />
-		</delete>
-		<get src="https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/${angus-activation.version}/angus-activation-${angus-activation.version}.jar" dest="lib/" />
-	</target>
+		<getDependency name="dkim" version="${dkim.version}" url="https://github.com/hudeany/dkim/releases/download/{version}/dkim-{version}.jar" />
+		<getDependency name="json" version="${json.version}" url="https://github.com/hudeany/json/releases/download/{version}/json-{version}.jar" />
+		<getDependency name="proxyautoconfig" version="${proxyautoconfig.version}" url="https://github.com/hudeany/ProxyAutoConfig/releases/download/{version}/proxyautoconfig-{version}.jar" />
+		<getDependency name="network" version="${network.version}" url="https://github.com/hudeany/network/releases/download/{version}/network-{version}.jar" />
 
-	<available file="lib/dkim-${dkim.version}.jar" property="dkim.available" />
-	<target name="get_dkim" unless="dkim.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="dkim-*.jar" />
-		</delete>
-		<get src="https://github.com/hudeany/dkim/releases/download/${dkim.version}/dkim-${dkim.version}.jar" dest="lib/" />
+		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-utilities" version="${soderer-utilities.version}" />
+		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-utilities" version="${soderer-utilities.version}" classifier="sources" />
 	</target>
-
-	<available file="lib/json-${json.version}.jar" property="json.available" />
-	<target name="get_json" unless="json.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="json-*.jar" />
-		</delete>
-		<get src="https://github.com/hudeany/json/releases/download/${json.version}/json-${json.version}.jar" dest="lib/" />
-	</target>
-
-	<available file="lib/proxyautoconfig-${proxyautoconfig.version}.jar" property="proxyautoconfig.available" />
-	<target name="get_proxyautoconfig" unless="proxyautoconfig.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="proxyautoconfig-*.jar" />
-		</delete>
-		<get src="https://github.com/hudeany/ProxyAutoConfig/releases/download/${proxyautoconfig.version}/proxyautoconfig-${proxyautoconfig.version}.jar" dest="lib/" />
-	</target>
-
-	<available file="lib/network-${network.version}.jar" property="network.available" />
-	<target name="get_network" unless="network.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="network-*.jar" />
-		</delete>
-		<get src="https://github.com/hudeany/network/releases/download/${network.version}/network-${network.version}.jar" dest="lib/" />
-	</target>
-
-	<available file="lib/soderer-utilities-${soderer-utilities.version}.jar" property="soderer-utilities.available" />
-	<target name="get_soderer_utilities" unless="soderer-utilities.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="soderer-utilities-*.jar" excludes="soderer-utilities-*-sources.jar" />
-		</delete>
-		<get src="https://soderer.de/maven2/de/soderer/soderer-utilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}.jar" dest="lib/" />
-	</target>
-
-	<available file="lib/soderer-utilities-${soderer-utilities.version}-sources.jar" property="soderer-utilities-sources.available" />
-	<target name="get_soderer_utilities_sources" unless="soderer-utilities-sources.available">
-		<mkdir dir="lib/" />
-		<delete>
-			<fileset dir="lib" includes="soderer-utilities-*-sources.jar" />
-		</delete>
-		<get src="https://soderer.de/maven2/de/soderer/soderer-utilities/${soderer-utilities.version}/soderer-utilities-${soderer-utilities.version}-sources.jar" dest="lib/" />
-	</target>
-
-	<target name="download_dependencies" depends="get_bcjmail, get_bcpg, get_bcpkix, get_bcprov, get_bcutil, get_jakarta_activation_api, get_jakarta_mail_api, get_angus_mail, get_angus_activation, get_dkim, get_json, get_proxyautoconfig, get_network, get_soderer_utilities, get_soderer_utilities_sources" />
 
 	<target name="compile" depends="download_dependencies">
 		<path id="build.classpath">
@@ -197,9 +116,14 @@
 		</copy>
 	</target>
 
-	<target name="create_versionfile">
+	<target name="determine_ca_public_key_file_names" if="codeSigningPropertiesAvailable">
 		<basename property="CaPublicKeyFileName" file="${CaPublicKey}"/>
 		<basename property="CaPublicKeyFileNameOld" file="${CaPublicKeyOld}"/>
+	</target>
+
+	<target name="create_versionfile" depends="determine_ca_public_key_file_names">
+		<property name="CaPublicKeyFileName" value="" />
+		<property name="CaPublicKeyFileNameOld" value="" />
 
 		<delete file="${buildPath}/bin/version.txt" />
 		<echo file="${buildPath}/bin/version.txt" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
@@ -217,11 +141,25 @@
 
 			<fileset dir="${buildPath}/bin" />
 
-			<zipfileset file="${CaPublicKey}" />
-			<zipfileset file="${CaPublicKeyOld}" />
 			<zipfileset dir="lib" includes="*.jar" excludes="*sources.jar" />
 		</jar>
-		
+	</target>
+
+	<available file="${user.home}/git/codeSigning.properties" property="codeSigningPropertiesAvailable" />
+
+	<!-- Two-pass jar build: only "if"/"unless" on <target> is universally reliable across Ant
+	     versions (some Ant versions don't honor the generic if/unless on individual nested
+	     elements like <zipfileset>). So the CA certificates are added in a second, separate
+	     "update" pass over the already-built jar, guarded at target level, instead of as a
+	     conditional zipfileset entry inside create_jar itself. -->
+	<target name="add_ca_certificates_to_jar" depends="create_jar" if="codeSigningPropertiesAvailable">
+		<jar destfile="${buildPath}/ConsoleMailer-${build.version}.jar" update="true">
+			<zipfileset file="${CaPublicKey}" />
+			<zipfileset file="${CaPublicKeyOld}" />
+		</jar>
+	</target>
+
+	<target name="sign_jar" depends="add_ca_certificates_to_jar" if="codeSigningPropertiesAvailable">
 		<signjar destDir="${buildPath}" alias="${CodeSigningKeyAlias}" keystore="${CodeSigningKeyStore}" storepass="${CodeSigningKeyStorePassword}" keypass="${CodeSigningKeyPassword}" preservelastmodified="true" tsaurl="${TsaUrl}">
 			<path>
 				<fileset dir="${buildPath}" includes="ConsoleMailer-${build.version}.jar" />
