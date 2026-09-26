@@ -12,6 +12,7 @@
 	<property name="angus-mail.version" value="2.0.3" />
 	<property name="angus-activation.version" value="2.0.2" />
 	<property name="dkim.version" value="26.1.1" />
+	<property name="csv.version" value="26.1.3" />
 	<property name="json.version" value="26.2.3" />
 	<property name="proxyautoconfig.version" value="26.1.1" />
 	<property name="network.version" value="26.0.31" />
@@ -87,6 +88,7 @@
 		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-mail" version="${angus-mail.version}" />
 		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-activation" version="${angus-activation.version}" />
 
+		<getDependency name="csv" version="${csv.version}" url="https://github.com/hudeany/csv/releases/download/{version}/csv-{version}.jar" />
 		<getDependency name="dkim" version="${dkim.version}" url="https://github.com/hudeany/dkim/releases/download/{version}/dkim-{version}.jar" />
 		<getDependency name="json" version="${json.version}" url="https://github.com/hudeany/json/releases/download/{version}/json-{version}.jar" />
 		<getDependency name="proxyautoconfig" version="${proxyautoconfig.version}" url="https://github.com/hudeany/ProxyAutoConfig/releases/download/{version}/proxyautoconfig-{version}.jar" />
