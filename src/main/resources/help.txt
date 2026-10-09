@@ -1,26 +1,26 @@
-Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host> -port <port> -user <user> -password <password> -from <from-address> -subject <subject> -to <to-address>
+Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host[:port]> -from <from-address> -subject <subject> -to <to-address>
 Example: java -jar ConsoleMailer.jar -host <hostname>:<port> -starttls -user "<username>" -password "<password>" -from sender@example.com -to receiver@example.com -subject "Subject" -html "HtmlBody"
 
 Mandatory parameters
-  -h, -host <hostname[:port]>:             Hostname of the smtp server, optionally with port
-  -port <port>:                            Port, if not included in hostname
-  -u, -user "<username>":                  Username for authentification to the smtp server
-  -p, -password "<password>":              Password for authentification to the smtp server
+  -h, -host <hostname[:port]>:             Hostname of the smtp server, optionally with port (default port is 25)
   -from "<email>":                         Email address of the sender of this email
   -s, -subject "<subject>":                Subject of this email
-  -to "<emailList>":                       Receiver email address of this email. This is not mandatory if one of -cc or -bcc is used
+  -to "<emailList>":                       Receiver email addresses of this email (may be used multiple times). This is not mandatory if one of -cc or -bcc is used
 
 Optional parameters
-  -cfg "<filePath>":                       Using a text file including any preconfigured parameters            
+  -cfg "<filePath>":                       Using a text file including any preconfigured parameters (may be used multiple times)
+  -port <port>:                            Port, if not included in hostname (default: 25)
+  -u, -user "<username>":                  Username for authentication to the smtp server
+  -p, -password "<password>":              Password for authentication to the smtp server (mandatory, if a username is set)
   -starttls:                               STARTTLS connection security to the smtp server. Default is none
   -ssl:                                    TLS/SSL connection security to the smtp server. Default is none
   -tls:                                    TLS/SSL connection security to the smtp server. Default is none
   -ssltls:                                 TLS/SSL connection security to the smtp server. Default is none
-  -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email (UTF-8, ISO-8859-1, ...)
+  -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email and to read -textfile and -htmlfile (UTF-8, ISO-8859-1, ...)
   
   -replyto "<replytoemailList>":           Reply to email address if it differs from the senders email address
-  -cc "<emailList>":                       CC recipient address list
-  -bcc "<emailList>":                      BCC recipient address list
+  -cc "<emailList>":                       CC recipient address list (may be used multiple times)
+  -bcc "<emailList>":                      BCC recipient address list (may be used multiple times)
   
   -bounce "<email>":                       Bounce address (Email header "Return-Path"), which will receive technical notification about the email distribution
   -notify "<email>":                       Demand a read notification of the recipient (Email header "Disposition-Notification-To")
@@ -55,21 +55,20 @@ Optional parameters
   -dkimselector "<domainKeySelector>":     DKIM key selector of the single DKIM key available in DKIM keys in DNS system
   -dkimidentity "<identity>":              Identity to be used in DKIM signature. Default none
 
-  -attachment "<filePath>":                Attache multiple files to this email
+  -attachment "<filePath>":                Attach a file to this email (may be used multiple times)
  
   -test:                                   Check DKIM configuration and crypto key configuration only. Does NOT send the email
-  -f, -force:                              Send the email, even if there where DKIM or crypto configuration errors
-  -silent:                                 Do not generate any terminal output except for hard errors, which where not overriden by "-force"
+  -f, -force:                              Send the email, even if there were DKIM or crypto configuration errors
+  -silent:                                 Do not generate any terminal output except for hard errors, which were not overridden by "-force"
   
   -eventstart "<yyyy-MM-dd HH:mm:ss>":     Send an event invitation in iCal format with this email by setting its start time.
-                                             Participants are all TO-addresses
-                                             Subject
-  -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation)
-  -eventlocation "<location text>":        Event's location (optional for event invitation)
+                                             Participants are all TO-addresses, the email subject is used as event title
+  -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation, needs -eventstart)
+  -eventlocation "<location text>":        Event's location (optional for event invitation, needs -eventstart)
   
   -verbose:                                Verbose error messages on console output
 
 Global standalone parameters
-  help:                                    Show this help manual
-  version:                                 Show current local version of this tool
-  update [<username> [<password>]]:        Check for online update and ask, whether an available update shell be installed.
+  help:                                    Show this help manual (only as single parameter)
+  version:                                 Show current local version of this tool (only as single parameter)
+  update [<username> [<password>]]:        Check for online update and ask, whether an available update should be installed (only as first parameter)

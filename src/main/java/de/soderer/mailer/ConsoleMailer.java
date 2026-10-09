@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -45,7 +47,9 @@ import de.soderer.utilities.mail.MailerConnectionSecurity;
 import jakarta.mail.internet.InternetAddress;
 
 /**
- * The Main-Class of ConsoleMailer<br />
+ * The main class of ConsoleMailer: sends an email defined by command line parameters (or parameter files) via an
+ * SMTP server, optionally with attachments, an event invitation, a DKIM signature and S/MIME or PGP signature and
+ * encryption.
  */
 public class ConsoleMailer extends UpdateableConsoleApplication {
 	/** The Constant APPLICATION_NAME */
@@ -54,6 +58,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	/** The Constant VERSION_RESOURCE_FILE, which contains version number and versioninfo download url */
 	public static final String VERSION_RESOURCE_FILE = "/version.txt";
 
+	/**
+	 * Resource file containing the help text.
+	 */
 	public static final String HELP_RESOURCE_FILE = "/help.txt";
 
 	/** The version is filled in at application start from the version.txt file */
@@ -72,12 +79,25 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	private static String getUsageMessage() {
 		try (InputStream helpInputStream = ConsoleMailer.class.getResourceAsStream(HELP_RESOURCE_FILE)) {
 			return "ConsoleMailer (by Andreas Soderer, mail: consolemailer@soderer.de)\n"
-					+ "VERSION: " + VERSION.toString() + " (" + new SimpleDateFormat(DateUtilities.YYYY_MM_DD_HHMMSS).format(VERSION_BUILDTIME) + ")" + "\n\n"
+					+ "VERSION: " + VERSION.toString() + getBuildTimeText() + "\n\n"
 					+ new String(IoUtilities.toByteArray(helpInputStream), StandardCharsets.UTF_8);
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			return "Help info is missing";
 		}
 	}
+
+	/**
+	 * Returns the build time for the version output, e.g. " (2026-10-06 23:10:38)".
+	 *
+	 * @return the formatted build time in brackets, or an empty string, if the version file contains no build time
+	 */
+	public static String getBuildTimeText() {
+		// The build time is optional in version.txt, so it must not break the help output
+		return VERSION_BUILDTIME == null ? "" : " (" + new SimpleDateFormat(DateUtilities.YYYY_MM_DD_HHMMSS).format(VERSION_BUILDTIME) + ")";
+	}
+
+	/** Lower case keywords for the help text, only recognized as single argument */
+	private static final Set<String> HELP_KEYWORDS = Set.of("help", "-help", "--help", "-h", "--h", "-?", "--?");
 
 	/**
 	 * The main method.
@@ -92,10 +112,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	}
 
 	/**
-	 * Method used for main but with no System.exit call to make it junit testable
+	 * Method used for main but with no System.exit call to make it junit testable.
 	 *
-	 * @param arguments
-	 * @return
+	 * @param args the command line arguments
+	 * @return the exit code: 0 if the email was sent (or checked with "-test"), 1 for errors and for help, version
+	 *         and update
 	 */
 	protected static int _main(final String[] args) {
 		ApplicationUpdateUtilities.removeUpdateLeftovers();
@@ -137,28 +158,24 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			if (arguments.size() == 0) {
 				System.out.println(getUsageMessage());
 				return 1;
+			} else if (arguments.size() == 1 && HELP_KEYWORDS.contains(arguments.get(0).toLowerCase(Locale.ROOT))) {
+				// Only as single argument: "-h" is also the parameter for the host, and e.g. a subject "help" showed the help text
+				System.out.println(getUsageMessage());
+				return 1;
+			} else if (arguments.size() == 1 && "version".equalsIgnoreCase(arguments.get(0))) {
+				System.out.println(VERSION.toString());
+				return 1;
+			} else if ("update".equalsIgnoreCase(arguments.get(0)) && arguments.size() <= 3) {
+				// Only as first argument (with optional username and password). Before, it was recognized at any position,
+				// so e.g. a subject "update" started the application update instead of sending the email.
+				final ConsoleMailer consoleMailer = new ConsoleMailer();
+				final String username = arguments.size() > 1 ? arguments.get(1) : null;
+				final char[] updatePassword = arguments.size() > 2 ? arguments.get(2).toCharArray() : null;
+				ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, username, updatePassword, null, false, false);
+				return 1;
 			} else {
 				for (int i = 0; i < arguments.size(); i++) {
-					if ("help".equalsIgnoreCase(arguments.get(i)) || "-help".equalsIgnoreCase(arguments.get(i)) || "--help".equalsIgnoreCase(arguments.get(i)) || "-h".equalsIgnoreCase(arguments.get(i)) || "--h".equalsIgnoreCase(arguments.get(i))
-							|| "-?".equalsIgnoreCase(arguments.get(i)) || "--?".equalsIgnoreCase(arguments.get(i))) {
-						System.out.println(getUsageMessage());
-						return 1;
-					} else if ("version".equalsIgnoreCase(arguments.get(i))) {
-						System.out.println(VERSION.toString());
-						return 1;
-					} else if ("update".equalsIgnoreCase(arguments.get(i))) {
-						if (arguments.size() > i + 2) {
-							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), arguments.get(i + 2).toCharArray(), null, false, false);
-						} else if (arguments.size() > i + 1) {
-							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, arguments.get(i + 1), null, null, false, false);
-						} else {
-							final ConsoleMailer consoleMailer = new ConsoleMailer();
-							ApplicationUpdateUtilities.executeUpdate(consoleMailer, ConsoleMailer.VERSIONINFO_DOWNLOAD_URL, applicationConfiguration.getProxyConfiguration(), ConsoleMailer.APPLICATION_NAME, ConsoleMailer.VERSION, ConsoleMailer.TRUSTED_UPDATE_CA_CERTIFICATES, null, null, null, false, false);
-						}
-						return 1;
-					} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
+					if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
 						i++;
 						if (i >= arguments.size()) {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter configfile");
@@ -201,7 +218,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			InternetAddress bounceAddress = null;
 			InternetAddress notifyAddress = null;
 			String bodyText = null;
+			File bodyTextFile = null;
 			String bodyHtml = null;
+			File bodyHtmlFile = null;
 			CryptoType cryptoType = null;
 			File signatureKeyFile = null;
 			char[] signatureKeyPassword = null;
@@ -230,7 +249,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					i++;
 				} else if ("-h".equalsIgnoreCase(arguments.get(i)) || "-host".equalsIgnoreCase(arguments.get(i))) {
 					if (host != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter host");
+						throw new ParameterException(arguments.get(i), "Multiple parameter host");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -253,7 +272,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-port".equalsIgnoreCase(arguments.get(i))) {
 					if (port != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter port");
+						throw new ParameterException(arguments.get(i), "Multiple parameter port");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -268,19 +287,19 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-starttls".equalsIgnoreCase(arguments.get(i))) {
 					if (connectionSecurity != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter connectionSecurity");
+						throw new ParameterException(arguments.get(i), "Multiple parameter connectionSecurity");
 					} else {
 						connectionSecurity = MailerConnectionSecurity.STARTTLS;
 					}
 				} else if ("-ssl".equalsIgnoreCase(arguments.get(i)) || "-tls".equalsIgnoreCase(arguments.get(i)) || "-ssltls".equalsIgnoreCase(arguments.get(i).replace("_", ""))) {
 					if (connectionSecurity != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter connectionSecurity");
+						throw new ParameterException(arguments.get(i), "Multiple parameter connectionSecurity");
 					} else {
 						connectionSecurity = MailerConnectionSecurity.SSL_TLS;
 					}
 				} else if ("-u".equalsIgnoreCase(arguments.get(i)) || "-user".equalsIgnoreCase(arguments.get(i))) {
 					if (user != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter user");
+						throw new ParameterException(arguments.get(i), "Multiple parameter user");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -291,7 +310,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-p".equalsIgnoreCase(arguments.get(i)) || "-password".equalsIgnoreCase(arguments.get(i))) {
 					if (password != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter password");
+						throw new ParameterException(arguments.get(i), "Multiple parameter password");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -302,13 +321,19 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-from".equalsIgnoreCase(arguments.get(i))) {
 					if (fromAddress != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter from-address");
+						throw new ParameterException(arguments.get(i), "Multiple parameter from-address");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter from-address");
 						} else {
-							final InternetAddress[] fromAddresses = MailUtilities.getEmailAddressesFromList(arguments.get(i));
+							InternetAddress[] fromAddresses;
+							try {
+								fromAddresses = MailUtilities.getEmailAddressesFromList(arguments.get(i));
+							} catch (@SuppressWarnings("unused") final Exception e) {
+								// Like the other address parameters (before, the plain parse error was output without the parameter)
+								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter from-address");
+							}
 							if (fromAddresses.length != 1) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter from-address");
 							} else {
@@ -318,7 +343,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-s".equalsIgnoreCase(arguments.get(i)) || "-subject".equalsIgnoreCase(arguments.get(i))) {
 					if (subject != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter subject");
+						throw new ParameterException(arguments.get(i), "Multiple parameter subject");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -333,7 +358,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-c".equalsIgnoreCase(arguments.get(i)) || "-charset".equalsIgnoreCase(arguments.get(i))) {
 					if (charset != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter charset");
+						throw new ParameterException(arguments.get(i), "Multiple parameter charset");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -428,7 +453,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-bounce".equalsIgnoreCase(arguments.get(i))) {
 					if (bounceAddress != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter bounce");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter bounce");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -443,7 +468,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-notify".equalsIgnoreCase(arguments.get(i))) {
 					if (notifyAddress != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter notify");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter notify");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -457,8 +482,8 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 					}
 				} else if ("-text".equalsIgnoreCase(arguments.get(i))) {
-					if (bodyText != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter text");
+					if (bodyText != null || bodyTextFile != null) {
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter text");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -468,8 +493,8 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 					}
 				} else if ("-textfile".equalsIgnoreCase(arguments.get(i))) {
-					if (bodyText != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter text");
+					if (bodyText != null || bodyTextFile != null) {
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter text");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -483,12 +508,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							if (!textFile.exists()) {
 								throw new ParameterException(arguments.get(i - 1), "Text file does not exist: " + textFilePath);
 							}
-							bodyText = FileUtilities.readFileToString(textFile, charset == null ? StandardCharsets.UTF_8 : charset);
+							// Read after all parameters, so a "-charset" given after this parameter is also used
+							bodyTextFile = textFile;
 						}
 					}
 				} else if ("-html".equalsIgnoreCase(arguments.get(i))) {
-					if (bodyHtml != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter html");
+					if (bodyHtml != null || bodyHtmlFile != null) {
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter html");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -498,8 +524,8 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 					}
 				} else if ("-htmlfile".equalsIgnoreCase(arguments.get(i))) {
-					if (bodyHtml != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter html");
+					if (bodyHtml != null || bodyHtmlFile != null) {
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter html");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -513,12 +539,13 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							if (!htmlFile.exists()) {
 								throw new ParameterException(arguments.get(i - 1), "Html file does not exist: " + htmlFilePath);
 							}
-							bodyHtml = FileUtilities.readFileToString(htmlFile, charset == null ? StandardCharsets.UTF_8 : charset);
+							// Read after all parameters, so a "-charset" given after this parameter is also used
+							bodyHtmlFile = htmlFile;
 						}
 					}
 				} else if ("-crypto".equalsIgnoreCase(arguments.get(i)) || "-cryptotype".equalsIgnoreCase(arguments.get(i))) {
 					if (cryptoType != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter crypto");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter crypto");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -539,7 +566,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-signaturekeyfile".equalsIgnoreCase(arguments.get(i))) {
 					if (signatureKeyFile != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter signatureKeyfile");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter signatureKeyfile");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -557,7 +584,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-signaturekeypassword".equalsIgnoreCase(arguments.get(i))) {
 					if (signatureKeyPassword != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter signatureKeypassword");
+						throw new ParameterException(arguments.get(i), "Multiple parameter signatureKeypassword");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -568,7 +595,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-signaturecertificatefile".equalsIgnoreCase(arguments.get(i))) {
 					if (signatureCertificateFile != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter signatureCertificateFile");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter signatureCertificateFile");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -586,7 +613,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-signaturemethodname".equalsIgnoreCase(arguments.get(i))) {
 					if (signatureMethodName != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter signatureMethodName");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter signatureMethodName");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -597,7 +624,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-encryptioncertificatefile".equalsIgnoreCase(arguments.get(i))) {
 					if (encryptionCertificateFile != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter encryptionKeyFile or encryptionCertificateFile");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter encryptionKeyFile or encryptionCertificateFile");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -615,7 +642,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-encryptionkeyfile".equalsIgnoreCase(arguments.get(i))) {
 					if (encryptionCertificateFile != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter encryptionKeyFile or encryptionCertificateFile");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter encryptionKeyFile or encryptionCertificateFile");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -633,7 +660,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-encryptionmethodname".equalsIgnoreCase(arguments.get(i))) {
 					if (encryptionMethodName != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter encryptionMethodName");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter encryptionMethodName");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -644,7 +671,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-dkimkeyfile".equalsIgnoreCase(arguments.get(i))) {
 					if (dkimPrivateKey != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter dkimkeyfile");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter dkimkeyfile");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -667,7 +694,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-dkimdomain".equalsIgnoreCase(arguments.get(i))) {
 					if (dkimDomain != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter dkimdomain");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter dkimdomain");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -678,7 +705,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-dkimselector".equalsIgnoreCase(arguments.get(i))) {
 					if (dkimSelector != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter dkimselector");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter dkimselector");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -689,7 +716,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-dkimidentity".equalsIgnoreCase(arguments.get(i))) {
 					if (dkimIdentity != null) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple value for parameter dkimidentity");
+						throw new ParameterException(arguments.get(i), "Multiple value for parameter dkimidentity");
 					} else {
 						i++;
 						if (i >= arguments.size()) {
@@ -717,25 +744,25 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 					}
 				} else if ("-test".equalsIgnoreCase(arguments.get(i))) {
 					if (test) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter test");
+						throw new ParameterException(arguments.get(i), "Multiple parameter test");
 					} else {
 						test = true;
 					}
 				} else if ("-f".equalsIgnoreCase(arguments.get(i)) || "-force".equalsIgnoreCase(arguments.get(i))) {
 					if (force) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter force");
+						throw new ParameterException(arguments.get(i), "Multiple parameter force");
 					} else {
 						force = true;
 					}
 				} else if ("-silent".equalsIgnoreCase(arguments.get(i))) {
 					if (silent) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter silent");
+						throw new ParameterException(arguments.get(i), "Multiple parameter silent");
 					} else {
 						silent = true;
 					}
 				} else if ("-verbose".equalsIgnoreCase(arguments.get(i))) {
 					if (verbose) {
-						throw new ParameterException(arguments.get(i - 1), "Multiple parameter verbose");
+						throw new ParameterException(arguments.get(i), "Multiple parameter verbose");
 					} else {
 						verbose = true;
 					}
@@ -797,6 +824,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 				throw new ParameterException("Missing parameter subject");
 			} else if (toAddressList.size() == 0 && ccAddressList.size() == 0 && bccAddressList.size() == 0) {
 				throw new ParameterException("No email recipient (to/cc/bcc)");
+			} else if (eventStart == null && (eventEnd != null || eventLocation != null)) {
+				// Before, these parameters were silently ignored without an event start
+				throw new ParameterException("Missing parameter eventstart, because parameter eventend or eventlocation is set");
+			} else if (eventStart != null && eventEnd != null && eventEnd.isBefore(eventStart)) {
+				throw new ParameterException("Parameter eventend is before eventstart");
 			} else {
 				// Default parameters
 				if (port == null) {
@@ -807,6 +839,12 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 				}
 				if (charset == null) {
 					charset = StandardCharsets.UTF_8;
+				}
+				if (bodyTextFile != null) {
+					bodyText = FileUtilities.readFileToString(bodyTextFile, charset);
+				}
+				if (bodyHtmlFile != null) {
+					bodyHtml = FileUtilities.readFileToString(bodyHtmlFile, charset);
 				}
 
 				final Mailer mailer = new Mailer();
@@ -987,7 +1025,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			System.err.println("For help information use parameter \"help\"");
 			return 1;
 		} catch (final Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println(e.getMessage() != null ? e.getMessage() : e.toString());
 			if (verbose) {
 				e.printStackTrace();
 			}
@@ -1005,6 +1043,11 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 		super(APPLICATION_NAME, VERSION);
 	}
 
+	/**
+	 * Sets up the default values of the application configuration.
+	 *
+	 * @param applicationConfiguration the application configuration
+	 */
 	public static void setupDefaultConfig(final ConfigurationProperties applicationConfiguration) {
 		applicationConfiguration.setupDefaultConfig();
 	}

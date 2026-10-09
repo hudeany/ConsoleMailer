@@ -1,93 +1,215 @@
-Tool for sending emails with DKIM signature and enrypted or signed content via GPG/PGP and S/MIME
+# ConsoleMailer
 
-Dependencies (Automatically downloaded by build job):
- - bcjmail-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar
- - bcpg-jdk18on-1.80.jar: "https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar
- - bcpkix-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar
- - bcprov-jdk18on-1.80.jar: https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar
- - bcutil-jdk18on-1.80.jar: <get src="https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/1.80/bcutil-jdk18on-1.80.jar
+**Send emails from the command line: with DKIM signature, S/MIME or PGP signature and encryption, attachments and calendar invitations.**
 
- - jakarta.activation-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar
- - jakarta.mail-api-2.1.3.jar: https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar
- - Eclipse angus-mail-2.0.3.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar
- - Eclipse angus-activation-2.0.2.jar: https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar
+ConsoleMailer sends a single email via any SMTP server. All settings are given as command line parameters or in reusable parameter files, which makes it a good fit for scripts, cron jobs and monitoring.
 
- - Soderer.de dkim-25.1.0.jar: https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar
- - Soderer.de json-26.1.31.jar: https://github.com/hudeany/json/releases/download/26.1.38/json-26.1.31.jar
+---
+
+## Features
+
+- **Any SMTP server**: with STARTTLS, SSL/TLS or unencrypted, with or without authentication
+- **Text and HTML**: content given directly or read from files, in any character set
+- **Recipients**: To, CC, BCC and Reply-To lists, bounce address (`Return-Path`) and read notification
+- **Attachments**: any number of files, the MIME type is detected by the file name
+- **DKIM signature**: sign emails with your domain key, so receivers can verify the sender domain
+- **S/MIME and PGP**: sign and/or encrypt emails, with configurable signature and encryption methods
+- **Calendar invitations**: attach an iCal event with start, end and location
+- **Parameter files**: keep server, sender and key settings in files and combine them with `-cfg`
+- **Safe testing**: `-test` checks the DKIM and crypto configuration without sending the email
+- **Auto update**: check for and install new versions with `update`
+
+## Requirements
+
+- Java 17 or newer
+
+## Getting started
+
+```bash
+# Show the help
+java -jar ConsoleMailer.jar help
+
+# Send a simple text email
+java -jar ConsoleMailer.jar -host smtp.example.com:587 -starttls -user "sender@example.com" -password "secret" \
+  -from sender@example.com -to receiver@example.com -subject "Hello" -text "Hello from ConsoleMailer"
+```
+
+### Examples
+
+HTML email from a file with attachments to several recipients:
+
+```bash
+java -jar ConsoleMailer.jar -host smtp.example.com:465 -ssl -user "reports@example.com" -password "secret" \
+  -from "Reports <reports@example.com>" -to "alice@example.com, bob@example.com" -cc team@example.com \
+  -subject "Monthly report" -htmlfile ./report.html -attachment ./report.pdf -attachment ./data.csv
+```
+
+Email with DKIM signature:
+
+```bash
+java -jar ConsoleMailer.jar -host smtp.example.com -from info@example.com -to receiver@example.org \
+  -subject "Signed by DKIM" -text "Hello" -dkimkeyfile ./dkim_private.pem -dkimselector mail2026
+```
+
+S/MIME signed and encrypted email:
+
+```bash
+java -jar ConsoleMailer.jar -host smtp.example.com -from sender@example.com -to receiver@example.org \
+  -subject "Confidential" -text "Secret content" -crypto S/MIME \
+  -signaturekeyfile ./sender_key.pem -signaturekeypassword "keypass" -signaturecertificatefile ./sender_cert.pem \
+  -encryptioncertificatefile ./receiver_cert.pem
+```
+
+PGP encrypted email:
+
+```bash
+java -jar ConsoleMailer.jar -host smtp.example.com -from sender@example.com -to receiver@example.org \
+  -subject "Confidential" -text "Secret content" -crypto PGP -encryptionkeyfile ./receiver_public.asc
+```
+
+Meeting invitation:
+
+```bash
+java -jar ConsoleMailer.jar -host smtp.example.com -from organizer@example.com -to "alice@example.com, bob@example.com" \
+  -subject "Project meeting" -text "See you there" \
+  -eventstart "2026-11-02 10:00:00" -eventend "2026-11-02 11:00:00" -eventlocation "Room 4.12"
+```
+
+## Parameter files
+
+Parameters that are the same for every email, like the server settings, can be stored in a text file and loaded with `-cfg` (also several files). The file contains the parameters exactly as on the command line, lines starting with `#` are comments:
 
 ```
-Usage: java -jar ConsoleMailer.jar [optional parameters] -host <host> -port <port> -user <user> -password <password> -from <from-address> -subject <subject> -to <to-address>
-Example: java -jar ConsoleMailer.jar -host <hostname>:<port> -starttls -user "<username>" -password "<password>" -from sender@example.com -to receiver@example.com -subject "Subject" -html "HtmlBody"
+# smtp.cfg
+-host smtp.example.com:587
+-starttls
+-user "sender@example.com"
+-password "secret"
+-from "Sender <sender@example.com>"
+```
 
-Mandatory parameters
-  -h, -host <hostname[:port]>:             Hostname of the smtp server, optionally with port
-  -port <port>:                            Port, if not included in hostname
-  -u, -user "<username>":                  Username for authentification to the smtp server
-  -p, -password "<password>":              Password for authentification to the smtp server
-  -from "<email>":                         Email address of the sender of this email
-  -s, -subject "<subject>":                Subject of this email
-  -to "<emailList>":                       Receiver email address of this email. This is not mandatory if one of -cc or -bcc is used
+```bash
+java -jar ConsoleMailer.jar -cfg ./smtp.cfg -to receiver@example.com -subject "Status" -text "All systems running"
+```
 
-Optional parameters
-  -cfg "<filePath>":                       Using a text file including any preconfigured parameters            
-  -starttls:                               STARTTLS connection security to the smtp server. Default is none
-  -ssl:                                    TLS/SSL connection security to the smtp server. Default is none
-  -tls:                                    TLS/SSL connection security to the smtp server. Default is none
-  -ssltls:                                 TLS/SSL connection security to the smtp server. Default is none
-  -c, -charset "<charsetName>":            Characterset (encoding) to be used in this email (UTF-8, ISO-8859-1, ...)
-  
-  -replyto:                                Reply to email address if it differs from the senders email address
-  -cc "<emailList>":                       CC recipient address list
-  -bcc "<emailList>":                      BCC recipient address list
-  
-  -bounce "<email>":                       Bounce address (Email header "Return-Path"), which will receive technical notification about the email distribution
-  -notify "<email>":                       Demand a read notification of the recipient (Email header "Disposition-Notification-To")
-  
-  -text "<text>":                          Text content of this email
-  -textfile "<filePath>":                  File containing the text content of this email
-  -html "<html>":                          HTML content of this email
-  -htmlfile "<filePath>":                  File containing the HTML content of this email
-  
-  -crypto "<crypto-type>":                 Crypto type for email signatures and encryption ("S/MIME" or "PGP")
-                                             Signature with S/MIME needs:
-                                               - signaturekeyfile [signaturekeypassword]
-                                               - signaturecertificatefile
-                                             Encryption with S/MIME needs:
-                                               - encryptioncertificatefile
-                                             Signature with PGP needs:
-                                               - signaturekeyfile [signaturekeypassword]
-                                             Encryption with PGP needs:
-                                               - encryptionkeyfile
+## Command line reference
 
-  -signaturekeyfile "<filePath>":          File containing the private key for signatures
-  -signaturekeypassword "<password>":      Password for the private key if needed
-  -signaturecertificatefile "<filePath>":  File containing the senders public certificate for signatures
-  -signaturemethodname "<methodName>":     Signature method name (default: "SHA512withRSA" for S/MIME, "SHA512" for PGP)
+```
+java -jar ConsoleMailer.jar [optional parameters] -host <host[:port]> -from <from-address> -subject <subject> -to <to-address>
+```
 
-  -encryptioncertificatefile "<filePath>": File containing the receivers public certificate for encryption by S/MIME
-  -encryptionkeyfile "<filePath>":         File containing the receivers public key for encryption by PGP
-  -encryptionmethodname "<methodName>":    Encryption method name (default: "AES256_CBC" for S/MIME, "AES256" for PGP)
+### Mandatory parameters
 
-  -dkimkeyfile "<filePath>":               File containing the private key for the DKIM signature
-  -dkimdomain "<domainName>":              Domain name of the DKIM signature if it differs from the senders email address domain
-  -dkimselector "<domainKeySelector>":     DKIM key selector of the single DKIM key available in DKIM keys in DNS system
-  -dkimidentity "<identity>":              Identity to be used in DKIM signature. Default none
+| Parameter | Description |
+|---|---|
+| `-h`, `-host <hostname[:port]>` | Hostname of the SMTP server, optionally with port (default port: 25) |
+| `-from "<email>"` | Email address of the sender |
+| `-s`, `-subject "<subject>"` | Subject of the email |
+| `-to "<emailList>"` | Recipient addresses (may be used multiple times). Not mandatory, if `-cc` or `-bcc` is used. |
 
-  -attachment "<filePath>":                Attache multiple files to this email
- 
-  -test:                                   Check DKIM configuration and crypto key configuration only. Does NOT send the email
-  -f, -force:                              Send the email, even if there where DKIM or crypto configuration errors
-  -silent:                                 Do not generate any terminal output except for hard errors, which where not overriden by "-force"
-  
-  -eventstart "<yyyy-MM-dd HH:mm:ss>":     Send an event invitation in iCal format with this email by setting its start time.
-                                             Participants are all TO-addresses
-                                             Subject
-  -eventend "<yyyy-MM-dd HH:mm:ss>":       Event's end time (optional for event invitation)
-  -eventlocation "<location text>":        Event's location (optional for event invitation)
-  
-  -verbose:                                Verbose error messages on console output
+### Server connection
 
-Global standalone parameters
-  help:                                    Show this help manual
-  version:                                 Show current local version of this tool
-  update [<username> [<password>]]:        Check for online update and ask, whether an available update shell be installed.
+| Parameter | Description |
+|---|---|
+| `-cfg "<filePath>"` | Parameter file with preconfigured parameters (may be used multiple times) |
+| `-port <port>` | Port, if not included in the hostname (default: 25) |
+| `-u`, `-user "<username>"` | Username for the authentication at the SMTP server |
+| `-p`, `-password "<password>"` | Password for the authentication (mandatory, if a username is set) |
+| `-starttls` | STARTTLS connection security (default: none) |
+| `-ssl`, `-tls`, `-ssltls` | SSL/TLS connection security (default: none) |
+
+### Recipients and headers
+
+| Parameter | Description |
+|---|---|
+| `-replyto "<emailList>"` | Reply-To addresses, if they differ from the sender |
+| `-cc "<emailList>"` | CC recipients (may be used multiple times) |
+| `-bcc "<emailList>"` | BCC recipients (may be used multiple times) |
+| `-bounce "<email>"` | Bounce address (header `Return-Path`), which receives technical delivery notifications |
+| `-notify "<email>"` | Request a read notification (header `Disposition-Notification-To`) |
+
+### Content
+
+| Parameter | Description |
+|---|---|
+| `-text "<text>"` | Text content |
+| `-textfile "<filePath>"` | File containing the text content |
+| `-html "<html>"` | HTML content |
+| `-htmlfile "<filePath>"` | File containing the HTML content |
+| `-c`, `-charset "<charsetName>"` | Character set of the email and of `-textfile` and `-htmlfile` (default: UTF-8) |
+| `-attachment "<filePath>"` | Attach a file (may be used multiple times) |
+
+### Calendar invitation
+
+| Parameter | Description |
+|---|---|
+| `-eventstart "<yyyy-MM-dd HH:mm:ss>"` | Adds an iCal event invitation with this start time. Participants are all To addresses, the subject is used as event title. |
+| `-eventend "<yyyy-MM-dd HH:mm:ss>"` | End time of the event (needs `-eventstart`) |
+| `-eventlocation "<location text>"` | Location of the event (needs `-eventstart`) |
+
+### DKIM signature
+
+| Parameter | Description |
+|---|---|
+| `-dkimkeyfile "<filePath>"` | File containing the private key for the DKIM signature |
+| `-dkimselector "<selector>"` | DKIM key selector of the key published in DNS (mandatory with `-dkimkeyfile`) |
+| `-dkimdomain "<domainName>"` | Domain of the DKIM signature, if it differs from the domain of the sender address |
+| `-dkimidentity "<identity>"` | Identity used in the DKIM signature (default: none) |
+
+### S/MIME and PGP
+
+| Parameter | Description |
+|---|---|
+| `-crypto "<type>"` | `S/MIME` or `PGP` |
+| `-signaturekeyfile "<filePath>"` | Private key for the signature |
+| `-signaturekeypassword "<password>"` | Password of the private key, if needed |
+| `-signaturecertificatefile "<filePath>"` | Sender's certificate for S/MIME signatures |
+| `-signaturemethodname "<methodName>"` | Signature method (default: `SHA512withRSA` for S/MIME, `SHA512` for PGP) |
+| `-encryptioncertificatefile "<filePath>"` | Receiver's certificate for S/MIME encryption |
+| `-encryptionkeyfile "<filePath>"` | Receiver's public key for PGP encryption |
+| `-encryptionmethodname "<methodName>"` | Encryption method (default: `AES256_CBC` for S/MIME, `AES256` for PGP) |
+
+What each combination needs:
+
+| | Signature | Encryption |
+|---|---|---|
+| **S/MIME** | `-signaturekeyfile` [`-signaturekeypassword`], `-signaturecertificatefile` | `-encryptioncertificatefile` |
+| **PGP** | `-signaturekeyfile` [`-signaturekeypassword`] | `-encryptionkeyfile` |
+
+### Execution
+
+| Parameter | Description |
+|---|---|
+| `-test` | Check the DKIM and crypto configuration only, the email is NOT sent |
+| `-f`, `-force` | Send the email, even if there were DKIM or crypto configuration errors |
+| `-silent` | No terminal output except for errors, which were not overridden by `-force` |
+| `-verbose` | Verbose error messages |
+
+### Global parameters
+
+| Parameter | Description |
+|---|---|
+| `help` | Show the help (only as single parameter) |
+| `version` | Show the installed version (only as single parameter) |
+| `update [<username> [<password>]]` | Check for an online update and install it after confirmation (only as first parameter) |
+
+**Exit code:** `0` if the email was sent (or checked with `-test`), otherwise `1`.
+
+## Dependencies
+
+The build job downloads these libraries automatically:
+
+| Library | Version | Download |
+|---|---|---|
+| Bouncy Castle bcjmail | 1.80 | [bcjmail-jdk18on-1.80.jar](https://repo1.maven.org/maven2/org/bouncycastle/bcjmail-jdk18on/1.80/bcjmail-jdk18on-1.80.jar) |
+| Bouncy Castle bcpg | 1.80 | [bcpg-jdk18on-1.80.jar](https://repo1.maven.org/maven2/org/bouncycastle/bcpg-jdk18on/1.80/bcpg-jdk18on-1.80.jar) |
+| Bouncy Castle bcpkix | 1.80 | [bcpkix-jdk18on-1.80.jar](https://repo1.maven.org/maven2/org/bouncycastle/bcpkix-jdk18on/1.80/bcpkix-jdk18on-1.80.jar) |
+| Bouncy Castle bcprov | 1.80 | [bcprov-jdk18on-1.80.jar](https://repo1.maven.org/maven2/org/bouncycastle/bcprov-jdk18on/1.80/bcprov-jdk18on-1.80.jar) |
+| Bouncy Castle bcutil | 1.80 | [bcutil-jdk18on-1.80.jar](https://repo1.maven.org/maven2/org/bouncycastle/bcutil-jdk18on/1.80/bcutil-jdk18on-1.80.jar) |
+| Jakarta Activation API | 2.1.3 | [jakarta.activation-api-2.1.3.jar](https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar) |
+| Jakarta Mail API | 2.1.3 | [jakarta.mail-api-2.1.3.jar](https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar) |
+| Eclipse Angus Mail | 2.0.3 | [angus-mail-2.0.3.jar](https://repo1.maven.org/maven2/org/eclipse/angus/angus-mail/2.0.3/angus-mail-2.0.3.jar) |
+| Eclipse Angus Activation | 2.0.2 | [angus-activation-2.0.2.jar](https://repo1.maven.org/maven2/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar) |
+| soderer.de dkim | 25.1.0 | [dkim-25.1.0.jar](https://github.com/hudeany/dkim/releases/download/25.1.0/dkim-25.1.0.jar) |
+| soderer.de json | 26.1.31 | [json-26.1.31.jar](https://github.com/hudeany/json/releases/download/26.1.38/json-26.1.31.jar) |
+
