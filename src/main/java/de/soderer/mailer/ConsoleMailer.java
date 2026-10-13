@@ -13,6 +13,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -976,7 +978,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 				}
 
 				if (eventStart != null) {
-					email.addEventInvitation(DateUtilities.createICalEventInvitation(
+					email.addEventInvitation(createICalEventInvitation(
 							subject,
 							null,
 							eventStart,
@@ -1050,5 +1052,120 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 	 */
 	public static void setupDefaultConfig(final ConfigurationProperties applicationConfiguration) {
 		applicationConfiguration.setupDefaultConfig();
+	}
+
+	/**
+	 * Creates an iCalendar (RFC 5545) event invitation, e.g. as email attachment. Text values are
+	 * escaped, so they cannot inject further iCalendar properties.
+	 *
+	 * @param shortname
+	 *            the summary of the event
+	 * @param description
+	 *            the description of the event, may be null
+	 * @param startDateTime
+	 *            the start of the event
+	 * @param endDateTime
+	 *            the end of the event, may be null
+	 * @param location
+	 *            the location of the event, may be null
+	 * @param organizer
+	 *            the organizer of the event, may be null
+	 * @param participants
+	 *            the required participants, may be null
+	 * @return the iCalendar text (lines separated by LF)
+	 */
+	public static String createICalEventInvitation(final String shortname, final String description, final ZonedDateTime startDateTime, final ZonedDateTime endDateTime, final String location, final InternetAddress organizer, final List<InternetAddress> participants) {
+		String returnValue =
+				"BEGIN:VCALENDAR\n";
+		returnValue += "METHOD:REQUEST" + "\n";
+		returnValue += "VERSION:2.0" + "\n";
+
+		returnValue += "BEGIN:VEVENT" + "\n";
+
+		returnValue += "DTSTAMP;VALUE=DATE-TIME:" + DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").format(ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC)) + "\n";
+		returnValue += "UID:" + UUID.randomUUID().toString().toUpperCase(Locale.ROOT) + "\n";
+
+		returnValue += "DTSTART;VALUE=DATE-TIME:" + DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").format(startDateTime.withZoneSameInstant(ZoneOffset.UTC)) + "\n";
+
+		if (endDateTime != null) {
+			returnValue += "DTEND;VALUE=DATE-TIME:" + DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").format(endDateTime.withZoneSameInstant(ZoneOffset.UTC)) + "\n";
+		}
+
+		if (location != null) {
+			returnValue += "LOCATION;VALUE=TEXT:" + escapeICalText(location) + "\n";
+		}
+
+		returnValue += "SUMMARY;VALUE=TEXT:" + escapeICalText(shortname) + "\n";
+
+		if (description != null) {
+			returnValue += "DESCRIPTION;VALUE=TEXT:" + escapeICalText(description) + "\n";
+		}
+
+		if (organizer != null) {
+			if (organizer.getPersonal() != null) {
+				returnValue += "ORGANIZER;CN=" + quoteICalParameter(organizer.getPersonal()) + ":MAILTO:" + removeLineBreaks(organizer.getAddress()) + "\n";
+			} else {
+				returnValue += "ORGANIZER:MAILTO:" + removeLineBreaks(organizer.getAddress()) + "\n";
+			}
+		}
+
+		if (participants != null) {
+			for (final InternetAddress participant : participants) {
+				if (participant.getPersonal() != null) {
+					returnValue += "ATTENDEE;ROLE=REQ-PARTICIPANT;CN=" + quoteICalParameter(participant.getPersonal()) + ":MAILTO:" + removeLineBreaks(participant.getAddress()) + "\n";
+				} else {
+					returnValue += "ATTENDEE;ROLE=REQ-PARTICIPANT:MAILTO:" + removeLineBreaks(participant.getAddress()) + "\n";
+				}
+			}
+		}
+
+		returnValue += "END:VEVENT" + "\n";
+
+		returnValue += "END:VCALENDAR\n";
+
+		return returnValue;
+	}
+
+	/**
+	 * Quotes a parameter value for iCalendar (RFC 5545, 3.2), like the common name of a participant.
+	 * Double quotes and line breaks are not allowed within a parameter value and are removed.
+	 *
+	 * @param value
+	 *            the parameter value, may be null
+	 * @return the quoted parameter value
+	 */
+	private static String quoteICalParameter(final String value) {
+		return "\"" + removeLineBreaks(value).replace("\"", "") + "\"";
+	}
+
+	/**
+	 * Removes all line breaks (CR and LF) of a value.
+	 *
+	 * @param value
+	 *            the value, may be null
+	 * @return the value without line breaks, an empty text for null
+	 */
+	private static String removeLineBreaks(final String value) {
+		if (value == null) {
+			return "";
+		} else {
+			return value.replace("\r", "").replace("\n", "");
+		}
+	}
+
+	/**
+	 * Escapes a TEXT value for iCalendar (RFC 5545, 3.3.11). Without escaping, line breaks in the
+	 * value would inject additional iCalendar properties.
+	 *
+	 * @param value
+	 *            the text value, may be null
+	 * @return the escaped value, an empty text for null
+	 */
+	private static String escapeICalText(final String value) {
+		if (value == null) {
+			return "";
+		} else {
+			return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n");
+		}
 	}
 }
