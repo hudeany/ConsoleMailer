@@ -16,9 +16,32 @@
 	<property name="json.version" value="26.2.8" />
 	<property name="proxyautoconfig.version" value="26.1.4" />
 	<property name="network.version" value="26.0.37" />
-	<property name="soderer-utilities.version" value="26.2.100" />
+	<property name="soderer-utilities.version" value="26.2.104" />
+	<property name="soderer-console.version" value="26.0.0" />
+	<property name="soderer-applicationbase.version" value="26.0.0" />
+	<property name="soderer-crypto.version" value="26.0.5" />
 
-	<target name="build_jar" depends="build_setup, cleanup_before, create_jar, sign_jar, cleanup_after" />
+	<!-- Test libraries, same for all libraries -->
+	<target name="download_test_dependencies">
+		<mkdir dir="lib_test/" />
+		<delete includeEmptyDirs="true">
+			<fileset dir="lib_test/">
+				<include name="*" />
+			</fileset>
+		</delete>
+
+		<get src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest/3.0/hamcrest-3.0.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-api/6.0.3/junit-jupiter-api-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/6.0.3/junit-jupiter-engine-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-params/6.0.3/junit-jupiter-params-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-engine/6.0.3/junit-platform-engine-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/6.0.3/junit-platform-commons-6.0.3.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar" dest="lib_test/" />
+		<get src="https://repo1.maven.org/maven2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar" dest="lib_test/" />
+	</target>
+	
+	<target name="build_jar" depends="build_setup, cleanup_before, create_jar, test, create_javadoc, sign_jar, cleanup_after" />
 
 	<target name="probe-proxy">
 		<condition property="proxy.enabled">
@@ -60,7 +83,7 @@
 		<property file="${user.home}/git/codeSigning.properties" />
 
 		<tstamp>
-			<format property="buildTime" pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
+			<format property="buildTime" pattern="yyyy-MM-dd HH:mm:ss" locale="en"/>
 		</tstamp>
 		<echo message="buildTime: ${buildTime}" />
 
@@ -71,13 +94,53 @@
 	<target name="cleanup_before">
 		<delete dir="${buildPath}/bin" />
 		<mkdir dir="${buildPath}/bin" />
+
+		<delete dir="${buildPath}/testbin" />
+		<mkdir dir="${buildPath}/testbin" />
 	</target>
 
-	<target name="cleanup_after">
+	<target name="create_javadoc" depends="create_jar">
+		<delete dir="${buildPath}/javadoc" />
+		<mkdir dir="${buildPath}/javadoc" />
+
+		<javadoc destdir="${buildPath}/javadoc" encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" source="17" failonerror="true">
+			<classpath refid="runtime.libs" />
+			<arg value="-quiet" />
+			<fileset dir="src/main/java" includes="**/*.java" />
+		</javadoc>
+
+		<jar destfile="${buildPath}/ConsoleMailer-${build.version}-javadoc.jar">
+			<manifest>
+				<attribute name="Version" value="${build.version}" />
+			</manifest>
+
+			<fileset dir="${buildPath}/javadoc" />
+			<fileset dir="" includes="LICENSE.txt" />
+		</jar>
+
+		<delete dir="${buildPath}/javadoc" />
+	</target>
+
+	<target name="cleanup_after" depends="test, create_javadoc">
 		<delete dir="${buildPath}/bin" />
+		<delete dir="${buildPath}/testbin" />
+
+		<delete includeEmptyDirs="true">
+			<fileset dir="${buildPath}">
+				<include name="TEST-*" />
+			</fileset>
+		</delete>
 	</target>
 
-	<target name="download_dependencies" depends="proxy">
+	<target name="download_dependencies" depends="register_antbuildhelp, proxy">
+		<!-- Start with an empty "lib/", so jars of removed dependencies do not stay on the classpath -->
+		<mkdir dir="lib/" />
+		<delete includeEmptyDirs="true">
+			<fileset dir="lib/">
+				<include name="*" />
+			</fileset>
+		</delete>
+
 		<getMavenDependency groupId="org.bouncycastle" artifactId="bcjmail-jdk18on" version="${bcjmail.version}" />
 		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpg-jdk18on" version="${bcpg.version}" />
 		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpkix-jdk18on" version="${bcpkix.version}" />
@@ -93,20 +156,24 @@
 		<getDependency name="json" version="${json.version}" url="https://github.com/hudeany/json/releases/download/{version}/json-{version}.jar" />
 		<getDependency name="proxyautoconfig" version="${proxyautoconfig.version}" url="https://github.com/hudeany/ProxyAutoConfig/releases/download/{version}/proxyautoconfig-{version}.jar" />
 		<getDependency name="network" version="${network.version}" url="https://github.com/hudeany/network/releases/download/{version}/network-{version}.jar" />
+		<getDependency name="soderer-console" version="${soderer-console.version}" url="https://github.com/hudeany/Console/releases/download/{version}/soderer-console-{version}.jar" />
+		<getDependency name="soderer-applicationbase" version="${soderer-applicationbase.version}" url="https://github.com/hudeany/ApplicationBase/releases/download/{version}/soderer-applicationbase-{version}.jar" />
+		<getDependency name="soderer-utilities" version="${soderer-utilities.version}" url="https://github.com/hudeany/Utilities/releases/download/{version}/soderer-utilities-{version}.jar" />
 
-		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-utilities" version="${soderer-utilities.version}" />
-		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-utilities" version="${soderer-utilities.version}" classifier="sources" />
+		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-crypto" version="${soderer-crypto.version}" />
 	</target>
 
 	<target name="compile" depends="download_dependencies">
-		<path id="build.classpath">
+		<!-- Runtime libraries, also used for the tests and the javadoc -->
+		<path id="runtime.libs">
 			<fileset dir="lib">
 				<include name="*.jar" />
 			</fileset>
 		</path>
 
-		<javac release="17" debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" srcdir="src" includeantruntime="false" encoding="UTF-8" classpath="lib/*">
-			<classpath refid="build.classpath" />
+		<!-- Only the main sources: the tests are compiled separately in the "test" target and are not part of the jar -->
+		<javac release="17" debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" srcdir="src/main/java" includeantruntime="false" encoding="UTF-8">
+			<classpath refid="runtime.libs" />
 			<compilerarg value="-Xlint:unchecked" />
 			<compilerarg value="-parameters" />
 		</javac>
@@ -145,6 +212,51 @@
 
 			<zipfileset dir="lib" includes="*.jar" excludes="*-sources.jar,*_sources.jar,*-javadoc.jar,*_javadoc.jar" />
 		</jar>
+	</target>
+
+	<target name="test" depends="create_jar, download_test_dependencies">
+		<!-- The application classes are taken from "bin", because the libraries packed inside the jar (jar in jar) are not on the classpath -->
+		<path id="test.classpath">
+			<fileset dir="lib_test">
+				<include name="*.jar" />
+			</fileset>
+			<path refid="runtime.libs" />
+			<pathelement location="${buildPath}/bin" />
+			<pathelement location="${buildPath}/testbin" />
+		</path>
+
+		<javac release="17" srcdir="src/test/java" destdir="${buildPath}/testbin" includeantruntime="false" encoding="UTF-8" debug="true" failonerror="true">
+			<classpath refid="test.classpath" />
+			<include name="**/*.java" />
+		</javac>
+
+		<copy todir="${buildPath}/testbin">
+			<fileset dir="src/test/resources" erroronmissingdir="false" />
+		</copy>
+
+		<junitlauncher printSummary="true" failureProperty="test.failed">
+			<classpath refid="test.classpath" />
+			<testclasses outputdir="${buildPath}">
+				<fileset dir="${buildPath}/testbin">
+					<include name="**/*.class" />
+					<!-- Special: tests that need manual interaction are skipped (as in the former surefire configuration) -->
+					<exclude name="**/*ManuallyTest*.class" />
+				</fileset>
+				<!-- Writes a report per test class to TEST-*.txt, including details of failed tests -->
+				<listener type="legacy-brief" sendSysOut="false" sendSysErr="false" />
+			</testclasses>
+		</junitlauncher>
+
+		<!-- Show which tests failed and why before stopping the build (only reports with failures or errors) -->
+		<concat if:set="test.failed" xmlns:if="ant:if">
+			<fileset dir="${buildPath}" includes="TEST-*.txt">
+				<or>
+					<contains text="FAILED" />
+					<contains text="Caused an ERROR" />
+				</or>
+			</fileset>
+		</concat>
+		<fail if="test.failed" message="Tests failed!" />
 	</target>
 
 	<available file="${user.home}/git/codeSigning.properties" property="codeSigningPropertiesAvailable" />

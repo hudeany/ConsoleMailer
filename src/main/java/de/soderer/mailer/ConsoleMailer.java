@@ -27,25 +27,19 @@ import java.util.UUID;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import de.soderer.applicationbase.ApplicationUpdateUtilities;
+import de.soderer.applicationbase.UpdateableConsoleApplication;
+import de.soderer.crypto.CryptographicUtilities;
+import de.soderer.crypto.PGPUtilities;
+import de.soderer.crypto.PGPUtilities.PgpHashMethod;
+import de.soderer.crypto.PGPUtilities.PgpSymmetricEncryptionMethod;
 import de.soderer.utilities.ConfigurationProperties;
 import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
-import de.soderer.utilities.UpdateableConsoleApplication;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.Version;
-import de.soderer.utilities.appupdate.ApplicationUpdateUtilities;
-import de.soderer.utilities.crypto.CryptographicUtilities;
-import de.soderer.utilities.crypto.PGPUtilities;
-import de.soderer.utilities.crypto.PGPUtilities.PgpHashMethod;
-import de.soderer.utilities.crypto.PGPUtilities.PgpSymmetricEncryptionMethod;
-import de.soderer.utilities.mail.CryptoType;
-import de.soderer.utilities.mail.Email;
-import de.soderer.utilities.mail.MailAttachment;
-import de.soderer.utilities.mail.MailUtilities;
-import de.soderer.utilities.mail.Mailer;
-import de.soderer.utilities.mail.MailerConnectionSecurity;
 import jakarta.mail.internet.InternetAddress;
 
 /**
