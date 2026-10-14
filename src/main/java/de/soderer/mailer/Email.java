@@ -13,10 +13,10 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
 import de.soderer.crypto.CryptographicUtilities;
+import de.soderer.dkim.DkimUtilities;
+import de.soderer.dkim.DomainKey;
 import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.Utilities;
-import de.soderer.utilities.mail.dkim.DkimUtilities;
-import de.soderer.utilities.mail.dkim.DomainKey;
 import jakarta.mail.internet.InternetAddress;
 
 /**
