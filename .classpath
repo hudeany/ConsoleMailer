@@ -25,7 +25,7 @@
 	<classpathentry kind="lib" path="lib/csv-26.1.9.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-applicationbase-26.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-console-26.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
