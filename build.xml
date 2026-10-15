@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="build_jar" name="Create all Jars for Project ConsoleMailer">
-	<property name="antbuildhelp.version" value="26.0.9" />
+	<!-- Project specific part -->
+	<property name="applicationName" value="ConsoleMailer" />
+	<property name="sourcePath" value="src/main/java" />
+	<property name="mainClass" value="de.soderer.ConsoleMailer" />
+	<property name="rsrcMainClass" value="de.soderer.mailer.ConsoleMailer" />
+	<property name="versionFileName" value="version.txt" />
+	
+	<!-- Default: https://soderer.de/index.php?download=Versions.json -->
+	<!-- Override for GitHub: https://api.github.com/repos/hudeany/ConsoleMailer/releases/latest -->
+	<property name="VersionsUrl" value="https://api.github.com/repos/hudeany/ConsoleMailer/releases/latest" />
 
 	<property name="bcjmail.version" value="1.86" />
 	<property name="bcpg.version" value="1.86" />
@@ -21,27 +30,68 @@
 	<property name="soderer-applicationbase.version" value="26.0.5" />
 	<property name="soderer-crypto.version" value="26.0.8" />
 
-	<!-- Test libraries, same for all libraries -->
-	<target name="download_test_dependencies">
-		<mkdir dir="lib_test/" />
+	<patternset id="application.resources">
+		<include name="**/*.txt" />
+	</patternset>
+
+	<resources id="application.libs">
+		<fileset dir="lib" includes="*.jar" excludes="*-sources.jar,*_sources.jar,*-javadoc.jar,*_javadoc.jar" />
+	</resources>
+
+	<target name="download_dependencies" depends="register_antbuildhelp">
+		<!-- Start with an empty "lib/", so jars of removed dependencies do not stay on the classpath -->
+		<mkdir dir="lib/" />
 		<delete includeEmptyDirs="true">
-			<fileset dir="lib_test/">
+			<fileset dir="lib/">
 				<include name="*" />
 			</fileset>
 		</delete>
 
-		<get src="https://repo1.maven.org/maven2/org/hamcrest/hamcrest/3.0/hamcrest-3.0.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-api/6.0.3/junit-jupiter-api-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/6.0.3/junit-jupiter-engine-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-params/6.0.3/junit-jupiter-params-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-launcher/6.0.3/junit-platform-launcher-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-engine/6.0.3/junit-platform-engine-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/6.0.3/junit-platform-commons-6.0.3.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar" dest="lib_test/" />
-		<get src="https://repo1.maven.org/maven2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar" dest="lib_test/" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcjmail-jdk18on" version="${bcjmail.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpg-jdk18on" version="${bcpg.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpkix-jdk18on" version="${bcpkix.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcprov-jdk18on" version="${bcprov.version}" />
+		<getMavenDependency groupId="org.bouncycastle" artifactId="bcutil-jdk18on" version="${bcutil.version}" />
+		<getMavenDependency groupId="jakarta.activation" artifactId="jakarta.activation-api" version="${jakarta-activation-api.version}" />
+		<getMavenDependency groupId="jakarta.mail" artifactId="jakarta.mail-api" version="${jakarta-mail-api.version}" />
+		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-mail" version="${angus-mail.version}" />
+		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-activation" version="${angus-activation.version}" />
+
+		<getDependency name="csv" version="${csv.version}" url="https://github.com/hudeany/csv/releases/download/{version}/csv-{version}.jar" />
+		<getDependency name="dkim" version="${dkim.version}" url="https://github.com/hudeany/dkim/releases/download/{version}/dkim-{version}.jar" />
+		<getDependency name="json" version="${json.version}" url="https://github.com/hudeany/json/releases/download/{version}/json-{version}.jar" />
+		<getDependency name="proxyautoconfig" version="${proxyautoconfig.version}" url="https://github.com/hudeany/ProxyAutoConfig/releases/download/{version}/proxyautoconfig-{version}.jar" />
+		<getDependency name="network" version="${network.version}" url="https://github.com/hudeany/network/releases/download/{version}/network-{version}.jar" />
+		<getDependency name="soderer-console" version="${soderer-console.version}" url="https://github.com/hudeany/Console/releases/download/{version}/soderer-console-{version}.jar" />
+		<getDependency name="soderer-applicationbase" version="${soderer-applicationbase.version}" url="https://github.com/hudeany/ApplicationBase/releases/download/{version}/soderer-applicationbase-{version}.jar" />
+		<getDependency name="soderer-utilities" version="${soderer-utilities.version}" url="https://github.com/hudeany/Utilities/releases/download/{version}/soderer-utilities-{version}.jar" />
+
+		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-crypto" version="${soderer-crypto.version}" />
 	</target>
-	
-	<target name="build_jar" depends="build_setup, cleanup_before, create_jar, test, create_javadoc, sign_jar, cleanup_after" />
+
+	<!-- ============================================================================================================ -->
+	<!-- Common part: identical in all applications. Changes are made here once and then copied into every project. -->
+	<!-- The project specific part above must define:                                                                -->
+	<!--   properties  applicationName, sourcePath, mainClass, rsrcMainClass, versionFileName                         -->
+	<!--   optional    VersionsUrl (overrides the value from codeSigning.properties),                                -->
+	<!--               createUnversionedJar (additionally creates "<applicationName>.jar")                            -->
+	<!--               createJavadocJar (additionally creates "<applicationName>-<version>-javadoc.jar")               -->
+	<!--   patternset  "application.resources" (files copied from src/main/resources into the jar)                     -->
+	<!--   resources   "application.libs" (jar files used for compiling and bundled into the jar)                      -->
+	<!--   target      "download_dependencies"                                                                       -->
+	<!-- Code signing and the CA public key files are optional: they are only used, if codeSigning.properties exists. -->
+	<!-- Tests run automatically, if the project has a "src/test/java" directory (JUnit 6, test libs in "lib_test").  -->
+	<!-- ============================================================================================================ -->
+
+	<property name="antbuildhelp.version" value="26.0.9" />
+
+	<!-- Test libraries, same for all applications -->
+	<property name="hamcrest.version" value="3.0" />
+	<property name="junit.version" value="6.0.3" />
+	<property name="opentest4j.version" value="1.3.0" />
+	<property name="apiguardian.version" value="1.1.2" />
+
+	<target name="build_jar" depends="build_setup, cleanup_before, create_jar, test, create_javadoc, sign_jar, copy_unversioned_jar, cleanup_after" />
 
 	<target name="probe-proxy">
 		<condition property="proxy.enabled">
@@ -75,15 +125,38 @@
 		<typedef resource="de/soderer/antbuildhelp/antlib.xml" classpath="lib_build/antbuildhelp-${antbuildhelp.version}.jar" />
 	</target>
 
+	<available file="${user.home}/git/codeSigning.properties" property="codeSigningPropertiesAvailable" />
+	<available file="src/test/java" type="dir" property="testSourcesAvailable" />
+
 	<target name="build_setup" depends="register_antbuildhelp">
-		<loadfile property="build.version" srcFile="build.version" failonerror="false" />
-		<property name="build.version" value="25.0.0" />
+		<echo>Ant version: ${ant.version}</echo>
+		<echo>Java/JVM HOME: ${java.home}</echo>
+		<echo>Java/JVM version: ${ant.java.version}</echo>
+		<echo>Java/JVM detailed version: ${java.version}</echo>
+
+		<loadfile property="build.version" srcFile="build.version" failonerror="false">
+			<filterchain>
+				<striplinebreaks />
+				<trim />
+			</filterchain>
+		</loadfile>
+		<property name="build.version" value="noVersion" />
+		<echo message="applicationName: ${applicationName}" />
 		<echo message="build.version: ${build.version}" />
 
+		<!-- A VersionsUrl set in the project specific part has priority, because Ant properties are immutable -->
 		<property file="${user.home}/git/codeSigning.properties" />
+		<property name="VersionsUrl" value="" />
+		<echo message="VersionsUrl: ${VersionsUrl}" />
+		<condition property="codeSigningState" value="enabled" else="disabled (no codeSigning.properties)">
+			<isset property="codeSigningPropertiesAvailable" />
+		</condition>
+		<echo message="Code signing: ${codeSigningState}" />
+
+		<property environment="env" />
 
 		<tstamp>
-			<format property="buildTime" pattern="yyyy-MM-dd HH:mm:ss" locale="en"/>
+			<format property="buildTime" pattern="yyyy-MM-dd HH:mm:ss" locale="en" />
 		</tstamp>
 		<echo message="buildTime: ${buildTime}" />
 
@@ -91,140 +164,105 @@
 		<echo message="buildPath: ${buildPath}" />
 	</target>
 
-	<target name="cleanup_before">
-		<delete dir="${buildPath}/bin" />
+	<target name="cleanup_before" depends="build_setup">
+		<delete dir="${buildPath}" />
+		<mkdir dir="${buildPath}" />
 		<mkdir dir="${buildPath}/bin" />
-
-		<delete dir="${buildPath}/testbin" />
-		<mkdir dir="${buildPath}/testbin" />
 	</target>
 
-	<target name="create_javadoc" depends="create_jar">
-		<delete dir="${buildPath}/javadoc" />
-		<mkdir dir="${buildPath}/javadoc" />
-
-		<javadoc destdir="${buildPath}/javadoc" encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" source="17" failonerror="true">
-			<classpath refid="runtime.libs" />
-			<arg value="-quiet" />
-			<fileset dir="src/main/java" includes="**/*.java" />
-		</javadoc>
-
-		<jar destfile="${buildPath}/ConsoleMailer-${build.version}-javadoc.jar">
-			<manifest>
-				<attribute name="Version" value="${build.version}" />
-			</manifest>
-
-			<fileset dir="${buildPath}/javadoc" />
-			<fileset dir="" includes="LICENSE.txt" />
-		</jar>
-
-		<delete dir="${buildPath}/javadoc" />
-	</target>
-
-	<target name="cleanup_after" depends="test, create_javadoc">
-		<delete dir="${buildPath}/bin" />
-		<delete dir="${buildPath}/testbin" />
-
-		<delete includeEmptyDirs="true">
-			<fileset dir="${buildPath}">
-				<include name="TEST-*" />
-			</fileset>
-		</delete>
-	</target>
-
-	<target name="download_dependencies" depends="register_antbuildhelp, proxy">
-		<!-- Start with an empty "lib/", so jars of removed dependencies do not stay on the classpath -->
-		<mkdir dir="lib/" />
-		<delete includeEmptyDirs="true">
-			<fileset dir="lib/">
-				<include name="*" />
-			</fileset>
-		</delete>
-
-		<getMavenDependency groupId="org.bouncycastle" artifactId="bcjmail-jdk18on" version="${bcjmail.version}" />
-		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpg-jdk18on" version="${bcpg.version}" />
-		<getMavenDependency groupId="org.bouncycastle" artifactId="bcpkix-jdk18on" version="${bcpkix.version}" />
-		<getMavenDependency groupId="org.bouncycastle" artifactId="bcprov-jdk18on" version="${bcprov.version}" />
-		<getMavenDependency groupId="org.bouncycastle" artifactId="bcutil-jdk18on" version="${bcutil.version}" />
-		<getMavenDependency groupId="jakarta.activation" artifactId="jakarta.activation-api" version="${jakarta-activation-api.version}" />
-		<getMavenDependency groupId="jakarta.mail" artifactId="jakarta.mail-api" version="${jakarta-mail-api.version}" />
-		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-mail" version="${angus-mail.version}" />
-		<getMavenDependency groupId="org.eclipse.angus" artifactId="angus-activation" version="${angus-activation.version}" />
-
-		<getDependency name="csv" version="${csv.version}" url="https://github.com/hudeany/csv/releases/download/{version}/csv-{version}.jar" />
-		<getDependency name="dkim" version="${dkim.version}" url="https://github.com/hudeany/dkim/releases/download/{version}/dkim-{version}.jar" />
-		<getDependency name="json" version="${json.version}" url="https://github.com/hudeany/json/releases/download/{version}/json-{version}.jar" />
-		<getDependency name="proxyautoconfig" version="${proxyautoconfig.version}" url="https://github.com/hudeany/ProxyAutoConfig/releases/download/{version}/proxyautoconfig-{version}.jar" />
-		<getDependency name="network" version="${network.version}" url="https://github.com/hudeany/network/releases/download/{version}/network-{version}.jar" />
-		<getDependency name="soderer-console" version="${soderer-console.version}" url="https://github.com/hudeany/Console/releases/download/{version}/soderer-console-{version}.jar" />
-		<getDependency name="soderer-applicationbase" version="${soderer-applicationbase.version}" url="https://github.com/hudeany/ApplicationBase/releases/download/{version}/soderer-applicationbase-{version}.jar" />
-		<getDependency name="soderer-utilities" version="${soderer-utilities.version}" url="https://github.com/hudeany/Utilities/releases/download/{version}/soderer-utilities-{version}.jar" />
-
-		<getMavenDependency repositoryUrl="https://soderer.de/maven2" groupId="de.soderer" artifactId="soderer-crypto" version="${soderer-crypto.version}" />
-	</target>
-
-	<target name="compile" depends="download_dependencies">
-		<!-- Runtime libraries, also used for the tests and the javadoc -->
-		<path id="runtime.libs">
-			<fileset dir="lib">
-				<include name="*.jar" />
-			</fileset>
+	<target name="compile" depends="build_setup, proxy, download_dependencies">
+		<path id="build.classpath">
+			<resources refid="application.libs" />
 		</path>
 
-		<!-- Only the main sources: the tests are compiled separately in the "test" target and are not part of the jar -->
-		<javac release="17" debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" srcdir="src/main/java" includeantruntime="false" encoding="UTF-8">
-			<classpath refid="runtime.libs" />
+		<mkdir dir="${buildPath}/bin" />
+		<javac release="17" debug="true" nowarn="true" deprecation="false" destdir="${buildPath}/bin" fork="yes" srcdir="${sourcePath}" includeantruntime="false" encoding="UTF-8">
+			<classpath refid="build.classpath" />
 			<compilerarg value="-Xlint:unchecked" />
 			<compilerarg value="-parameters" />
 		</javac>
 
 		<copy todir="${buildPath}/bin">
 			<fileset dir="src/main/resources">
-				<include name="**/*.txt" />
+				<patternset refid="application.resources" />
 			</fileset>
 		</copy>
+
+		<available file="${buildPath}/bin/VersionInfo.txt" property="versionInfoFileAvailable" />
 	</target>
 
+	<!-- Only for applications with a VersionInfo.txt containing the placeholder ${build.version} -->
+	<target name="replace_version_info" depends="compile" if="versionInfoFileAvailable">
+		<replace file="${buildPath}/bin/VersionInfo.txt" token="$${build.version}" value="${build.version}" />
+	</target>
+
+	<!-- The CA public key file names are only known with codeSigning.properties, otherwise they stay empty -->
 	<target name="determine_ca_public_key_file_names" if="codeSigningPropertiesAvailable">
-		<basename property="CaPublicKeyFileName" file="${CaPublicKey}"/>
-		<basename property="CaPublicKeyFileNameOld" file="${CaPublicKeyOld}"/>
+		<basename property="CaPublicKeyFileName" file="${CaPublicKey}" />
+		<basename property="CaPublicKeyFileNameOld" file="${CaPublicKeyOld}" />
 	</target>
 
-	<target name="create_versionfile" depends="determine_ca_public_key_file_names">
+	<!-- Runs after compile, so the copied resources cannot overwrite the generated version file -->
+	<target name="create_versionfile" depends="replace_version_info, determine_ca_public_key_file_names">
 		<property name="CaPublicKeyFileName" value="" />
 		<property name="CaPublicKeyFileNameOld" value="" />
 
-		<delete file="${buildPath}/bin/version.txt" />
-		<echo file="${buildPath}/bin/version.txt" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
-		<delete file="src/main/resources/version.txt" />
-		<echo file="src/main/resources/version.txt" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
+		<delete file="${buildPath}/bin/${versionFileName}" />
+		<echo file="${buildPath}/bin/${versionFileName}" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
+		<delete file="src/main/resources/${versionFileName}" />
+		<echo file="src/main/resources/${versionFileName}" append="false">${build.version}${line.separator}${buildTime}${line.separator}${VersionsUrl}${line.separator}${CaPublicKeyFileName}, ${CaPublicKeyFileNameOld}${line.separator}</echo>
 	</target>
 
-	<target name="create_jar" depends="compile, create_versionfile">
-		<jar destfile="${buildPath}/ConsoleMailer-${build.version}.jar">
+	<!-- The CA public key files are placed in the jar root, like before with zipfileset -->
+	<target name="copy_ca_public_keys" depends="create_versionfile" if="codeSigningPropertiesAvailable">
+		<copy file="${CaPublicKey}" todir="${buildPath}/bin" />
+		<copy file="${CaPublicKeyOld}" todir="${buildPath}/bin" />
+	</target>
+
+	<target name="create_jar" depends="copy_ca_public_keys">
+		<jar destfile="${buildPath}/${applicationName}-${build.version}.jar">
 			<manifest>
-				<attribute name="Main-Class" value="de.soderer.ConsoleMailer" />
+				<attribute name="Main-Class" value="${mainClass}" />
+				<attribute name="Rsrc-Main-Class" value="${rsrcMainClass}" />
 				<attribute name="Class-Path" value="." />
-				<attribute name="Rsrc-Main-Class" value="de.soderer.mailer.ConsoleMailer" />
+				<attribute name="Enable-Native-Access" value="ALL-UNNAMED" />
 			</manifest>
 
 			<fileset dir="${buildPath}/bin" />
 
-			<zipfileset dir="lib" includes="*.jar" excludes="*-sources.jar,*_sources.jar,*-javadoc.jar,*_javadoc.jar" />
+			<!-- Library jars are stored in the jar root for the jar-in-jar loader -->
+			<resources refid="application.libs" />
 		</jar>
 	</target>
 
-	<target name="test" depends="create_jar, download_test_dependencies">
+	<!-- The "if" is also set here, because Ant runs the dependencies of a target even if the target itself is skipped -->
+	<target name="download_test_dependencies" depends="register_antbuildhelp, proxy" if="testSourcesAvailable">
+		<getMavenDependency libDir="lib_test" groupId="org.hamcrest" artifactId="hamcrest" version="${hamcrest.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.jupiter" artifactId="junit-jupiter-api" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.jupiter" artifactId="junit-jupiter-engine" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.jupiter" artifactId="junit-jupiter-params" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.platform" artifactId="junit-platform-launcher" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.platform" artifactId="junit-platform-engine" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.platform" artifactId="junit-platform-commons" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.opentest4j" artifactId="opentest4j" version="${opentest4j.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.apiguardian" artifactId="apiguardian-api" version="${apiguardian.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.platform" artifactId="junit-platform-suite-api" version="${junit.version}" />
+		<getMavenDependency libDir="lib_test" groupId="org.junit.platform" artifactId="junit-platform-suite-engine" version="${junit.version}" />
+	</target>
+
+	<!-- Only if the project has test sources -->
+	<target name="test" depends="create_jar, download_test_dependencies" if="testSourcesAvailable">
 		<!-- The application classes are taken from "bin", because the libraries packed inside the jar (jar in jar) are not on the classpath -->
 		<path id="test.classpath">
 			<fileset dir="lib_test">
 				<include name="*.jar" />
 			</fileset>
-			<path refid="runtime.libs" />
+			<path refid="build.classpath" />
 			<pathelement location="${buildPath}/bin" />
 			<pathelement location="${buildPath}/testbin" />
 		</path>
 
+		<mkdir dir="${buildPath}/testbin" />
 		<javac release="17" srcdir="src/test/java" destdir="${buildPath}/testbin" includeantruntime="false" encoding="UTF-8" debug="true" failonerror="true">
 			<classpath refid="test.classpath" />
 			<include name="**/*.java" />
@@ -239,7 +277,7 @@
 			<testclasses outputdir="${buildPath}">
 				<fileset dir="${buildPath}/testbin">
 					<include name="**/*.class" />
-					<!-- Special: tests that need manual interaction are skipped (as in the former surefire configuration) -->
+					<!-- Tests that need manual interaction are skipped -->
 					<exclude name="**/*ManuallyTest*.class" />
 				</fileset>
 				<!-- Writes a report per test class to TEST-*.txt, including details of failed tests -->
@@ -259,25 +297,51 @@
 		<fail if="test.failed" message="Tests failed!" />
 	</target>
 
-	<available file="${user.home}/git/codeSigning.properties" property="codeSigningPropertiesAvailable" />
+	<!-- Only if the project specific part sets "createJavadocJar" -->
+	<target name="create_javadoc" depends="create_jar" if="createJavadocJar">
+		<delete dir="${buildPath}/javadoc" />
+		<mkdir dir="${buildPath}/javadoc" />
 
-	<!-- Two-pass jar build: only "if"/"unless" on <target> is universally reliable across Ant
-	     versions (some Ant versions don't honor the generic if/unless on individual nested
-	     elements like <zipfileset>). So the CA certificates are added in a second, separate
-	     "update" pass over the already-built jar, guarded at target level, instead of as a
-	     conditional zipfileset entry inside create_jar itself. -->
-	<target name="add_ca_certificates_to_jar" depends="create_jar" if="codeSigningPropertiesAvailable">
-		<jar destfile="${buildPath}/ConsoleMailer-${build.version}.jar" update="true">
-			<zipfileset file="${CaPublicKey}" />
-			<zipfileset file="${CaPublicKeyOld}" />
+		<javadoc destdir="${buildPath}/javadoc" encoding="UTF-8" charset="UTF-8" docencoding="UTF-8" source="17" failonerror="true">
+			<classpath refid="build.classpath" />
+			<arg value="-quiet" />
+			<fileset dir="${sourcePath}" includes="**/*.java" />
+		</javadoc>
+
+		<jar destfile="${buildPath}/${applicationName}-${build.version}-javadoc.jar">
+			<manifest>
+				<attribute name="Version" value="${build.version}" />
+			</manifest>
+
+			<fileset dir="${buildPath}/javadoc" />
+			<fileset dir="." includes="LICENSE.txt" />
 		</jar>
+
+		<delete dir="${buildPath}/javadoc" />
 	</target>
 
-	<target name="sign_jar" depends="add_ca_certificates_to_jar" if="codeSigningPropertiesAvailable">
+	<target name="sign_jar" depends="create_jar" if="codeSigningPropertiesAvailable">
+		<echo message="TsaUrl: ${TsaUrl}" />
 		<signjar destDir="${buildPath}" alias="${CodeSigningKeyAlias}" keystore="${CodeSigningKeyStore}" storepass="${CodeSigningKeyStorePassword}" keypass="${CodeSigningKeyPassword}" preservelastmodified="true" tsaurl="${TsaUrl}">
 			<path>
-				<fileset dir="${buildPath}" includes="ConsoleMailer-${build.version}.jar" />
+				<fileset dir="${buildPath}" includes="${applicationName}-${build.version}.jar" />
 			</path>
 		</signjar>
+	</target>
+
+	<!-- Only if the project specific part sets "createUnversionedJar". Runs after sign_jar, so both jars are identical. -->
+	<target name="copy_unversioned_jar" depends="sign_jar" if="createUnversionedJar">
+		<copy file="${buildPath}/${applicationName}-${build.version}.jar" tofile="${buildPath}/${applicationName}.jar" overwrite="true" />
+	</target>
+
+	<target name="cleanup_after">
+		<delete dir="${buildPath}/bin" />
+		<delete dir="${buildPath}/testbin" />
+
+		<delete includeEmptyDirs="true">
+			<fileset dir="${buildPath}">
+				<include name="TEST-*" />
+			</fileset>
+		</delete>
 	</target>
 </project>
