@@ -19,8 +19,8 @@
 	<classpathentry kind="lib" path="lib/soderer-utilities-26.2.110.jar"/>
 	<classpathentry kind="lib" path="lib/csv-26.1.10.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-applicationbase-26.0.14.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-console-26.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-console-26.0.6.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/bcjmail-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpg-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-1.86.jar"/>
