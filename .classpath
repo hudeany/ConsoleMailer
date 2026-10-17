@@ -9,7 +9,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/angus-mail-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/dkim-26.1.8.jar"/>
+	<classpathentry kind="lib" path="lib/dkim-26.1.9.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.activation-api-2.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta.mail-api-2.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/angus-activation-2.0.3.jar"/>
@@ -18,9 +18,9 @@
 	<classpathentry kind="lib" path="lib/proxyautoconfig-26.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-utilities-26.2.113.jar"/>
 	<classpathentry kind="lib" path="lib/csv-26.1.11.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-applicationbase-26.0.21.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-console-26.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.14.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-applicationbase-26.0.22.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-console-26.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/bcjmail-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpg-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-1.86.jar"/>
