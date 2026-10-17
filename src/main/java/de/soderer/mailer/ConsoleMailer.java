@@ -27,6 +27,7 @@ import java.util.UUID;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import de.soderer.applicationbase.ApplicationConfigurationProperties;
 import de.soderer.applicationbase.ApplicationUpdateUtilities;
 import de.soderer.applicationbase.UpdateableConsoleApplication;
 import de.soderer.crypto.CryptographicUtilities;
@@ -139,9 +140,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 		final List<String> arguments = new ArrayList<>(Arrays.asList(args));
 		final List<File> configFiles = new ArrayList<>();
 
-		ConfigurationProperties applicationConfiguration;
+		ApplicationConfigurationProperties applicationConfiguration;
 		try {
-			applicationConfiguration = new ConfigurationProperties(ConsoleMailer.APPLICATION_NAME, true);
+			applicationConfiguration = new ApplicationConfigurationProperties(ConsoleMailer.APPLICATION_NAME, true);
 			ConsoleMailer.setupDefaultConfig(applicationConfiguration);
 		} catch (@SuppressWarnings("unused") final Exception e) {
 			System.err.println("Invalid application configuration");
