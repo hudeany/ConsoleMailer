@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/csv-26.1.11.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-applicationbase-26.0.27.jar"/>
 	<classpathentry kind="lib" path="lib/soderer-console-26.0.9.jar"/>
-	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.20.jar"/>
+	<classpathentry kind="lib" path="lib/soderer-crypto-26.0.21.jar"/>
 	<classpathentry kind="lib" path="lib/bcjmail-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpg-jdk18on-1.86.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk18on-1.86.jar"/>
