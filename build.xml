@@ -25,7 +25,7 @@
 	<property name="json.version" value="26.2.13" />
 	<property name="proxyautoconfig.version" value="26.1.5" />
 	<property name="network.version" value="26.0.39" />
-	<property name="soderer-utilities.version" value="26.2.123" />
+	<property name="soderer-utilities.version" value="26.2.124" />
 	<property name="soderer-console.version" value="26.0.11" />
 	<property name="soderer-applicationbase.version" value="26.0.36" />
 	<property name="soderer-crypto.version" value="26.0.27" />
