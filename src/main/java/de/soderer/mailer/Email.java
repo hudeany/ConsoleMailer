@@ -16,8 +16,8 @@ import de.soderer.crypto.CryptographicUtilities;
 import de.soderer.dkim.DkimUtilities;
 import de.soderer.dkim.DomainKey;
 import de.soderer.utilities.DateUtilities;
+import de.soderer.utilities.StringSplitter;
 import de.soderer.utilities.StringUtilities;
-import de.soderer.utilities.Utilities;
 import jakarta.mail.internet.InternetAddress;
 
 /**
@@ -739,7 +739,7 @@ public class Email {
 
 			if (signatureKey != null && signatureCertificate != null) {
 				String certEmail = null;
-				for (final String token : Utilities.parseTokens(signatureCertificate.getSubjectX500Principal().toString(), ',')) {
+				for (final String token : StringSplitter.parseTokens(signatureCertificate.getSubjectX500Principal().toString(), ',')) {
 					final String[] keyValueParts = token.trim().split("=");
 					if (keyValueParts.length >= 2 && ("E".equals(keyValueParts[0]) || "EMAILADDRESS".equals(keyValueParts[0]))) {
 						certEmail = keyValueParts[1];
@@ -765,7 +765,7 @@ public class Email {
 
 			if (encryptionCertificate != null) {
 				String certEmail = null;
-				for (final String token : Utilities.parseTokens(encryptionCertificate.getSubjectX500Principal().toString(), ',')) {
+				for (final String token : StringSplitter.parseTokens(encryptionCertificate.getSubjectX500Principal().toString(), ',')) {
 					final String[] keyValueParts = token.trim().split("=");
 					if (keyValueParts.length >= 2 && ("E".equals(keyValueParts[0]) || "EMAILADDRESS".equals(keyValueParts[0]))) {
 						certEmail = keyValueParts[1];

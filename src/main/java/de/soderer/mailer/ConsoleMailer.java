@@ -39,6 +39,7 @@ import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
+import de.soderer.utilities.StringSplitter;
 import de.soderer.utilities.StringUtilities;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.Version;
@@ -194,7 +195,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 
 			for (final File configFile : configFiles) {
 				try {
-					arguments.addAll(Utilities.parseArguments(FileUtilities.removePropertiesCommentLines(FileUtilities.readFileToString(configFile, Charset.defaultCharset()))));
+					arguments.addAll(StringSplitter.parseArguments(FileUtilities.removePropertiesCommentLines(FileUtilities.readFileToString(configFile, Charset.defaultCharset()))));
 				} catch (@SuppressWarnings("unused") final Exception e) {
 					throw new ParameterException("Configfile is invalid: " + configFile.getAbsolutePath());
 				}
