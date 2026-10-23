@@ -22,7 +22,7 @@
 	<property name="angus-activation.version" value="2.0.3" />
 	<property name="dkim.version" value="26.1.10" />
 	<property name="csv.version" value="26.1.13" />
-	<property name="json.version" value="26.2.14" />
+	<property name="json.version" value="26.2.15" />
 	<property name="proxyautoconfig.version" value="26.1.5" />
 	<property name="network.version" value="26.0.39" />
 	<property name="soderer-utilities.version" value="26.3.0" />
