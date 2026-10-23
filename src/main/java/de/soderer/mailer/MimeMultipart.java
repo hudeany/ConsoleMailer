@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.soderer.network.HttpUtilities;
-import de.soderer.utilities.Utilities;
+import de.soderer.utilities.StringUtilities;
 import jakarta.mail.internet.ContentType;
 
 /**
@@ -62,7 +62,7 @@ public class MimeMultipart extends jakarta.mail.internet.MimeMultipart {
 			}
 		}
 
-		if (!Utilities.isBlank(boundary)) {
+		if (StringUtilities.isNotBlank(boundary)) {
 			newContentType.setParameter("boundary", boundary);
 		}
 

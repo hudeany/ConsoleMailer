@@ -48,6 +48,7 @@ import de.soderer.crypto.PGPUtilities.PgpHashMethod;
 import de.soderer.dkim.DkimSignedMessage;
 import de.soderer.network.HttpUtilities;
 import de.soderer.utilities.DateUtilities;
+import de.soderer.utilities.StringUtilities;
 import de.soderer.utilities.Utilities;
 import jakarta.activation.DataHandler;
 import jakarta.mail.Address;
@@ -202,7 +203,7 @@ public class Mailer {
 	 * @throws Exception if the email is invalid or cannot be built, signed, encrypted or sent
 	 */
 	public Mailer send(final Email email) throws Exception {
-		if (Utilities.isBlank(smtpMailRelayHostname)) {
+		if (StringUtilities.isBlank(smtpMailRelayHostname)) {
 			smtpMailRelayHostname = "localhost";
 		}
 
@@ -295,13 +296,13 @@ public class Mailer {
 		if ((email.getAttachments() == null || email.getAttachments().size() == 0)
 				&& (email.getEventInvitations() == null || email.getEventInvitations().size() == 0)
 				&& email.getCryptoType() != CryptoType.PGP) {
-			if (Utilities.isBlank(email.getBodyText()) && Utilities.isBlank(email.getBodyHtml())) {
+			if (StringUtilities.isBlank(email.getBodyText()) && StringUtilities.isBlank(email.getBodyHtml())) {
 				// Use a simple text email with only text content
 				mimeMessage.setText("", email.getCharset().name());
-			} else if (Utilities.isBlank(email.getBodyHtml())) {
+			} else if (StringUtilities.isBlank(email.getBodyHtml())) {
 				// Use a simple text email with only text content
 				mimeMessage.setText(email.getBodyText(), email.getCharset().name());
-			} else if (Utilities.isBlank(email.getBodyText())) {
+			} else if (StringUtilities.isBlank(email.getBodyText())) {
 				// Use a simple html email with only html content
 				mimeMessage.setContent(email.getBodyHtml(), "text/html; charset=" + email.getCharset().name());
 			} else {
@@ -320,17 +321,17 @@ public class Mailer {
 		} else {
 			rootMultipart = new de.soderer.mailer.MimeMultipart("mixed", HttpUtilities.generateBoundary());
 
-			if (Utilities.isBlank(email.getBodyText()) && Utilities.isBlank(email.getBodyHtml())) {
+			if (StringUtilities.isBlank(email.getBodyText()) && StringUtilities.isBlank(email.getBodyHtml())) {
 				// Use a multipart text email with only text content and attachements
 				final MimeBodyPart textMimeBodyPart = new MimeBodyPart();
 				textMimeBodyPart.setText("", email.getCharset().name());
 				rootMultipart.addBodyPart(textMimeBodyPart);
-			} else if (Utilities.isBlank(email.getBodyHtml())) {
+			} else if (StringUtilities.isBlank(email.getBodyHtml())) {
 				final MimeBodyPart textMimeBodyPart = new MimeBodyPart();
 				// Use a multipart text email with only text content and attachements
 				textMimeBodyPart.setContent(email.getBodyText(), "text/plain; charset=" + email.getCharset().name());
 				rootMultipart.addBodyPart(textMimeBodyPart);
-			} else if (Utilities.isBlank(email.getBodyText())) {
+			} else if (StringUtilities.isBlank(email.getBodyText())) {
 				final MimeBodyPart textMimeBodyPart = new MimeBodyPart();
 				// Use a multipart html email with only html content and attachements
 				textMimeBodyPart.setContent(email.getBodyHtml(), "text/html; charset=" + email.getCharset().name());
@@ -367,7 +368,7 @@ public class Mailer {
 			if (email.getEventInvitations() != null) {
 				int count = 0;
 				for (final String eventInvitation : email.getEventInvitations()) {
-					if (Utilities.isBlank(eventInvitation)) {
+					if (StringUtilities.isBlank(eventInvitation)) {
 						throw new Exception("Invalid empty event invitation");
 					} else {
 						final MimeBodyPart invitation = new MimeBodyPart();
@@ -446,7 +447,7 @@ public class Mailer {
 
 		signer.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder().setProvider(BouncyCastleProvider.PROVIDER_NAME)
 				.setSignedAttributeGenerator(new AttributeTable(attributes))
-				.build(Utilities.isBlank(signatureMethodName) ? "SHA512withRSA" : signatureMethodName, privateKey, signingCertificate));
+				.build(StringUtilities.isBlank(signatureMethodName) ? "SHA512withRSA" : signatureMethodName, privateKey, signingCertificate));
 
 		final List<X509Certificate> certList = new ArrayList<>();
 		certList.add(signingCertificate);
@@ -468,7 +469,7 @@ public class Mailer {
 
 		final MimeBodyPart mimeBodyPart = new MimeBodyPart();
 		mimeBodyPart.setContent(mimeMessage.getContent(), mimeMessage.getContentType());
-		final ASN1ObjectIdentifier encryptionAlgorithmIdentifier = Utilities.isBlank(encryptionMethodName) ? CMSAlgorithm.AES256_CBC : CryptographicUtilities.getASN1ObjectIdentifierByEncryptionMethodName(encryptionMethodName);
+		final ASN1ObjectIdentifier encryptionAlgorithmIdentifier = StringUtilities.isBlank(encryptionMethodName) ? CMSAlgorithm.AES256_CBC : CryptographicUtilities.getASN1ObjectIdentifierByEncryptionMethodName(encryptionMethodName);
 		final MimeBodyPart encryptedMimeBodyPart = envelopedGenerator.generate(mimeBodyPart, new JceCMSContentEncryptorBuilder(encryptionAlgorithmIdentifier).setProvider(BouncyCastleProvider.PROVIDER_NAME).build());
 		mimeMessage.setContent(encryptedMimeBodyPart.getContent(), encryptedMimeBodyPart.getContentType());
 		mimeMessage.saveChanges();
@@ -477,7 +478,7 @@ public class Mailer {
 	}
 
 	private static Multipart signMessageWithPgp(final MimeMessage mimeMessage, final Multipart rootMultipart, final PGPSecretKey privateKey, final char[] password, final String signatureMethodNameParameter) throws Exception {
-		final String signatureMethodName = Utilities.isBlank(signatureMethodNameParameter) ? PgpHashMethod.SHA256.name() : signatureMethodNameParameter;
+		final String signatureMethodName = StringUtilities.isBlank(signatureMethodNameParameter) ? PgpHashMethod.SHA256.name() : signatureMethodNameParameter;
 		final MimeBodyPart bodyPart = new MimeBodyPart();
 		bodyPart.setContent(rootMultipart);
 

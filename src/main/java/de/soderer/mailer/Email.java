@@ -16,6 +16,7 @@ import de.soderer.crypto.CryptographicUtilities;
 import de.soderer.dkim.DkimUtilities;
 import de.soderer.dkim.DomainKey;
 import de.soderer.utilities.DateUtilities;
+import de.soderer.utilities.StringUtilities;
 import de.soderer.utilities.Utilities;
 import jakarta.mail.internet.InternetAddress;
 
@@ -571,9 +572,9 @@ public class Email {
 	 * @throws Exception if a value is missing
 	 */
 	public Email setDkimData(final String domain, final String selector, final RSAPrivateKey privateKey, final String identity) throws Exception {
-		if (Utilities.isBlank(domain)) {
+		if (StringUtilities.isBlank(domain)) {
 			throw new Exception("DKIM domain may not be empty");
-		} else if (Utilities.isBlank(selector)) {
+		} else if (StringUtilities.isBlank(selector)) {
 			throw new Exception("DKIM key selector may not be empty");
 		} else if (privateKey == null) {
 			throw new Exception("DKIM private key may not be empty");

@@ -11,8 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.soderer.network.HttpUtilities;
+import de.soderer.utilities.StringUtilities;
 import de.soderer.utilities.SystemUtilities;
-import de.soderer.utilities.Utilities;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 
@@ -167,14 +167,14 @@ public class MailUtilities {
 	 * @throws Exception if an address is invalid
 	 */
 	public static InternetAddress[] getEmailAddressesFromList(final String emailAddressesListString) throws Exception {
-		if (Utilities.isBlank(emailAddressesListString)) {
+		if (StringUtilities.isBlank(emailAddressesListString)) {
 			return new InternetAddress[0];
 		} else {
 			final List<InternetAddress> emailAddresses = new ArrayList<>();
 
 			if (!emailAddressesListString.contains(">")) {
 				for (final String emailAddressString : emailAddressesListString.split(";|,| ")) {
-					if (Utilities.isNotBlank(emailAddressString)) {
+					if (StringUtilities.isNotBlank(emailAddressString)) {
 						final String normalizedEmailAddressString = normalizeEmail(emailAddressString);
 						if (MailUtilities.isEmailValid(normalizedEmailAddressString)) {
 							try {
@@ -191,7 +191,7 @@ public class MailUtilities {
 				}
 			} else {
 				for (final String nameWithEmailAddressString : emailAddressesListString.split(";|,|>")) {
-					if (Utilities.isNotBlank(nameWithEmailAddressString)) {
+					if (StringUtilities.isNotBlank(nameWithEmailAddressString)) {
 						String name;
 						String normalizedEmailAddressString;
 						if (nameWithEmailAddressString.contains("<")) {
@@ -205,7 +205,7 @@ public class MailUtilities {
 						if (MailUtilities.isEmailValid(normalizedEmailAddressString)) {
 							try {
 								final InternetAddress nextAddress;
-								if (Utilities.isBlank(name)) {
+								if (StringUtilities.isBlank(name)) {
 									nextAddress = new InternetAddress(normalizedEmailAddressString);
 								} else {
 									nextAddress = new InternetAddress(normalizedEmailAddressString, name);
@@ -235,7 +235,7 @@ public class MailUtilities {
 	 * @return normalized email address, null for a blank email address
 	 */
 	public static String normalizeEmail(final String email) {
-		if (Utilities.isBlank(email)) {
+		if (StringUtilities.isBlank(email)) {
 			return null;
 		} else {
 			return email.toLowerCase(Locale.ROOT).trim();
@@ -369,7 +369,7 @@ public class MailUtilities {
 	 * @throws Exception if the to-address is missing
 	 */
 	public static String createMailtoLink(final String toAdress, final String ccAdress, final String bccAdress, final String subject, final String body) throws Exception {
-		if (Utilities.isBlank(toAdress)) {
+		if (StringUtilities.isBlank(toAdress)) {
 			throw new Exception("TO address is missing or empty");
 		}
 
@@ -377,25 +377,25 @@ public class MailUtilities {
 
 		boolean isFirstParameter = true;
 
-		if (Utilities.isNotBlank(bccAdress)) {
+		if (StringUtilities.isNotBlank(bccAdress)) {
 			mailtoString.append(isFirstParameter ? "?" : "&");
 			mailtoString.append("bcc=").append(HttpUtilities.urlEncode(bccAdress, StandardCharsets.UTF_8));
 			isFirstParameter = false;
 		}
 
-		if (Utilities.isNotBlank(ccAdress)) {
+		if (StringUtilities.isNotBlank(ccAdress)) {
 			mailtoString.append(isFirstParameter ? "?" : "&");
 			mailtoString.append("cc=").append(HttpUtilities.urlEncode(ccAdress, StandardCharsets.UTF_8));
 			isFirstParameter = false;
 		}
 
-		if (Utilities.isNotBlank(subject)) {
+		if (StringUtilities.isNotBlank(subject)) {
 			mailtoString.append(isFirstParameter ? "?" : "&");
 			mailtoString.append("subject=").append(HttpUtilities.urlEncode(subject, StandardCharsets.UTF_8).replace("+", "%20"));
 			isFirstParameter = false;
 		}
 
-		if (Utilities.isNotBlank(body)) {
+		if (StringUtilities.isNotBlank(body)) {
 			mailtoString.append(isFirstParameter ? "?" : "&");
 			mailtoString.append("body=").append(HttpUtilities.urlEncode(body, StandardCharsets.UTF_8).replace("+", "%20"));
 			isFirstParameter = false;

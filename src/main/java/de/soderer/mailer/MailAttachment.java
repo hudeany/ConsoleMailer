@@ -3,7 +3,7 @@ package de.soderer.mailer;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 
-import de.soderer.utilities.Utilities;
+import de.soderer.utilities.StringUtilities;
 
 /**
  * Attachment of an {@link Email}.
@@ -23,7 +23,7 @@ public class MailAttachment {
 	 * @throws Exception if name or data are missing
 	 */
 	public MailAttachment(final String name, final byte[] data, final String mimeType) throws Exception {
-		if (Utilities.isBlank(name)) {
+		if (StringUtilities.isBlank(name)) {
 			throw new Exception("Invalid empty mail attachment");
 		} else {
 			this.name = name;
@@ -35,7 +35,7 @@ public class MailAttachment {
 			this.data = data;
 		}
 
-		if (Utilities.isBlank(mimeType)) {
+		if (StringUtilities.isBlank(mimeType)) {
 			final FileNameMap fileNameMap = URLConnection.getFileNameMap();
 			final String detectedMimeType = fileNameMap.getContentTypeFor(name);
 			// Unknown file name extensions are sent as generic binary data

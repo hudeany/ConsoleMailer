@@ -39,6 +39,7 @@ import de.soderer.utilities.DateUtilities;
 import de.soderer.utilities.FileUtilities;
 import de.soderer.utilities.IoUtilities;
 import de.soderer.utilities.ParameterException;
+import de.soderer.utilities.StringUtilities;
 import de.soderer.utilities.Utilities;
 import de.soderer.utilities.Version;
 import jakarta.mail.internet.InternetAddress;
@@ -178,7 +179,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter configfile");
 						} else {
 							final String configFilePath = arguments.get(i);
-							if (Utilities.isBlank(configFilePath)) {
+							if (StringUtilities.isBlank(configFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter configfile");
 							}
 							final File configFile = new File(configFilePath);
@@ -239,7 +240,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 
 			// Read the parameters
 			for (int i = 0; i < arguments.size(); i++) {
-				if (Utilities.isBlank(arguments.get(i))) {
+				if (StringUtilities.isBlank(arguments.get(i))) {
 					throw new ParameterException(arguments.get(i), "Invalid parameter");
 				} else if ("-cfg".equalsIgnoreCase(arguments.get(i)) || "-config".equalsIgnoreCase(arguments.get(i))) {
 					// Configfiles have already been processed
@@ -346,7 +347,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						if (i >= arguments.size()) {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter subject");
 						} else {
-							if (Utilities.isBlank(arguments.get(i))) {
+							if (StringUtilities.isBlank(arguments.get(i))) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter subject");
 							} else {
 								subject = arguments.get(i);
@@ -361,7 +362,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						if (i >= arguments.size()) {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter charset");
 						} else {
-							if (Utilities.isBlank(arguments.get(i))) {
+							if (StringUtilities.isBlank(arguments.get(i))) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter charset");
 							} else {
 								try {
@@ -498,7 +499,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter text-file");
 						} else {
 							final String textFilePath = arguments.get(i);
-							if (Utilities.isBlank(textFilePath)) {
+							if (StringUtilities.isBlank(textFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter text-file");
 							}
 							final File textFile = new File(textFilePath);
@@ -529,7 +530,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter html-file");
 						} else {
 							final String htmlFilePath = arguments.get(i);
-							if (Utilities.isBlank(htmlFilePath)) {
+							if (StringUtilities.isBlank(htmlFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter html-file");
 							}
 							final File htmlFile = new File(htmlFilePath);
@@ -549,7 +550,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter crypto");
 						} else {
 							final String cryptoTypeString = arguments.get(i);
-							if (Utilities.isBlank(cryptoTypeString)) {
+							if (StringUtilities.isBlank(cryptoTypeString)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter crypto");
 							}
 							if ("smime".equalsIgnoreCase(cryptoTypeString.replace("/", "").replace("_", "").replace(" ", ""))) {
@@ -570,7 +571,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter signatureKeyfile");
 						} else {
 							final String signatureKeyfilePath = arguments.get(i);
-							if (Utilities.isBlank(signatureKeyfilePath)) {
+							if (StringUtilities.isBlank(signatureKeyfilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter signatureKeyfile");
 							}
 							signatureKeyFile = new File(signatureKeyfilePath);
@@ -599,7 +600,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter signatureCertificateFile");
 						} else {
 							final String signatureCertificateFilePath = arguments.get(i);
-							if (Utilities.isBlank(signatureCertificateFilePath)) {
+							if (StringUtilities.isBlank(signatureCertificateFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter signaturecertificatefile");
 							}
 							signatureCertificateFile = new File(signatureCertificateFilePath);
@@ -628,7 +629,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter encryptionCertificateFile");
 						} else {
 							final String encryptionCertificateFilePath = arguments.get(i);
-							if (Utilities.isBlank(encryptionCertificateFilePath)) {
+							if (StringUtilities.isBlank(encryptionCertificateFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter encryptionCertificateFile");
 							}
 							encryptionCertificateFile = new File(encryptionCertificateFilePath);
@@ -646,7 +647,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter encryptionKeyFile");
 						} else {
 							final String encryptionCertificateFilePath = arguments.get(i);
-							if (Utilities.isBlank(encryptionCertificateFilePath)) {
+							if (StringUtilities.isBlank(encryptionCertificateFilePath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter encryptionKeyFile");
 							}
 							encryptionCertificateFile = new File(encryptionCertificateFilePath);
@@ -675,7 +676,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 							throw new ParameterException(arguments.get(i - 1), "Missing value for parameter dkimkeyfile");
 						} else {
 							final String dkimPrivateKeyPath = arguments.get(i);
-							if (Utilities.isBlank(dkimPrivateKeyPath)) {
+							if (StringUtilities.isBlank(dkimPrivateKeyPath)) {
 								throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter dkimkeyfile");
 							}
 							final File dkimPrivateKeyFile = new File(dkimPrivateKeyPath);
@@ -728,7 +729,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter attachment");
 					} else {
 						final String attachmentPath = arguments.get(i);
-						if (Utilities.isBlank(attachmentPath)) {
+						if (StringUtilities.isBlank(attachmentPath)) {
 							throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter attachment");
 						}
 						final File attachmentFile = new File(attachmentPath);
@@ -769,7 +770,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventstart");
 					} else {
 						final String eventStartString = arguments.get(i);
-						if (Utilities.isBlank(eventStartString)) {
+						if (StringUtilities.isBlank(eventStartString)) {
 							throw new ParameterException(arguments.get(i - 1), "Invalid empty value for parameter eventstart");
 						} else {
 							try {
@@ -785,7 +786,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventend");
 					} else {
 						final String eventEndString = arguments.get(i);
-						if (Utilities.isBlank(eventEndString)) {
+						if (StringUtilities.isBlank(eventEndString)) {
 							throw new ParameterException(arguments.get(i - 1), "Invalid empty value for parameter eventend");
 						} else {
 							try {
@@ -801,7 +802,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						throw new ParameterException(arguments.get(i - 1), "Missing value for parameter eventlocation");
 					} else {
 						eventLocation = arguments.get(i);
-						if (Utilities.isBlank(eventLocation)) {
+						if (StringUtilities.isBlank(eventLocation)) {
 							throw new ParameterException(arguments.get(i - 1), "Invalid value for parameter eventlocation");
 						}
 					}
@@ -811,9 +812,9 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 			}
 
 			// Mandatory parameters
-			if (Utilities.isBlank(host)) {
+			if (StringUtilities.isBlank(host)) {
 				throw new ParameterException("Missing parameter host");
-			} else if (Utilities.isNotBlank(user) && Utilities.isBlank(password)) {
+			} else if (StringUtilities.isNotBlank(user) && StringUtilities.isBlank(password)) {
 				throw new ParameterException("Missing parameter password, because parameter user is set");
 			} else if (fromAddress == null) {
 				throw new ParameterException("Missing parameter from-address");
@@ -925,7 +926,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 
 						if (signatureMethodName != null) {
-							if (Utilities.isBlank(CryptographicUtilities.checkSignatureMethodName(signatureMethodName))) {
+							if (StringUtilities.isBlank(CryptographicUtilities.checkSignatureMethodName(signatureMethodName))) {
 								throw new ParameterException(signatureMethodName, "Invalid value for parameter signatureMethodName");
 							}
 
@@ -962,7 +963,7 @@ public class ConsoleMailer extends UpdateableConsoleApplication {
 						}
 						email.setEncryptionCertificate(encryptionCertificates.get(0));
 						if (encryptionMethodName != null) {
-							if (Utilities.isBlank(CryptographicUtilities.checkEncryptionMethodName(encryptionMethodName))) {
+							if (StringUtilities.isBlank(CryptographicUtilities.checkEncryptionMethodName(encryptionMethodName))) {
 								throw new ParameterException("-encryptionMethodName", "Invalid value for parameter encryptionMethodName with S/MIME");
 							}
 							email.setEncryptionMethodName(encryptionMethodName);
