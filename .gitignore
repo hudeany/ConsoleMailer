@@ -5,3 +5,4 @@
 /lib_sources/
 /lib_build/
 /build.version
+/src/main/resources/version.txt
